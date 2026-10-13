@@ -1,0 +1,1 @@
+export const metadata={title:"Compare products"};export default function Compare(){return <section className="shell content"><span className="eyebrow">Find your fit</span><h1>Compare preview</h1><p>Product comparison will be connected after the product data and commerce architecture are finalized.</p><a className="button" href="/shop">Browse products</a></section>}

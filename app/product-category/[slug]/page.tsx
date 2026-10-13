@@ -1,0 +1,4 @@
+import type {Metadata} from "next";import {notFound} from "next/navigation";import {categories,products} from "@/data/products";import {Catalog} from "@/components/Catalog";
+export function generateStaticParams(){return categories.map(c=>({slug:c.slug}))}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return {title:categories.find(c=>c.slug===slug)?.name??"Category"}}
+export default async function Category({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const category=categories.find(c=>c.slug===slug);if(!category)notFound();return <section className="shell"><div className="pagehead"><span className="eyebrow">Shop the edit</span><h1>{category.name}</h1><p>Explore our {category.name.toLowerCase()} collection.</p></div><Catalog items={products.filter(p=>p.category===category.slug)}/></section>}

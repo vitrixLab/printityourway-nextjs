@@ -1,0 +1,232 @@
+{
+  "communities": {
+    "0": [
+      "about_us_about_page",
+      "cart_cart_page",
+      "checkout_checkout_page",
+      "checkout_steps_progress",
+      "compare_compare_page",
+      "contact_form_7_plugin",
+      "contact_us_contact_page",
+      "elementor_page_builder",
+      "empty_state_return_to_shop",
+      "faq_accordion_section",
+      "header_ajax_search",
+      "main_nav_menu",
+      "shared_woodmart_header",
+      "wishlist_wishlist_page",
+      "woocommerce_platform"
+    ],
+    "1": [
+      "elementskit_lite_plugin",
+      "home_hero_slider",
+      "home_popular_categories",
+      "home_printify_design_cta",
+      "home_product_showcase",
+      "index_home_page",
+      "shop_shop_archive",
+      "slider_revolution_plugin",
+      "wc_cart_fragments_ajax_add_to_cart",
+      "woocommerce_archive_toolbar",
+      "woodmart_theme",
+      "zakeke_product_designer"
+    ],
+    "2": [
+      "product_category_bag_category_archive",
+      "product_category_front_hat_category_archive",
+      "product_category_hoodie_category_archive",
+      "product_category_nav",
+      "product_category_shirt_category_archive",
+      "shared_woodmart_footer",
+      "shop_sidebar_filters",
+      "woocommerce_ajax_shop"
+    ],
+    "3": [
+      "docs_conversion_plan",
+      "docs_conversion_plan_headless_woocommerce",
+      "docs_conversion_plan_saas_commerce",
+      "docs_conversion_plan_search_params_filters",
+      "docs_conversion_plan_static_catalog_mvp",
+      "docs_site_map_route_map",
+      "html_to_nextjs_playbook"
+    ],
+    "4": [
+      "docs_conversion_plan_variation_picker",
+      "docs_products_bag_category",
+      "product_classic_white_backpack_minimalist_everyday_school_travel_bag_product",
+      "product_duffel_bag_product",
+      "product_laptop_sleeve_product",
+      "product_personalized_weekend_tote_bag_large_canvas_weekender_with_rope_handles_product"
+    ],
+    "5": [
+      "docs_products_catalog",
+      "docs_products_front_hat_category",
+      "product_camo_trucker_hat_classic_embroidered_camouflage_mesh_cap_product",
+      "product_leather_patch_dad_hat_classic_rectangle_patch_baseball_cap_product",
+      "product_low_profile_baseball_cap_classic_minimalist_white_dad_hat_for_everyday_wear_product"
+    ],
+    "6": [
+      "docs_products_hoodie_category",
+      "product_classic_sponge_fleece_hoodie_cozy_pullover_sweatshirt_product",
+      "product_cozy_three_panel_fleece_hoodie_lightweight_white_pullover_product",
+      "product_heather_gray_full_zip_hoodie_classic_casual_zip_up_hooded_jacket_product"
+    ],
+    "7": [
+      "docs_products_shirt_category",
+      "product_i_love_you_with_all_my_butt_t_shirt_funny_romantic_graphic_tee_product",
+      "product_sweet_dreams_t_shirt_retro_cozy_sleepwear_graphic_tee_product",
+      "product_white_crewneck_t_shirt_product"
+    ]
+  },
+  "cohesion": {
+    "0": 0.22857142857142856,
+    "1": 0.22727272727272727,
+    "2": 0.7857142857142857,
+    "3": 0.42857142857142855,
+    "4": 0.5333333333333333,
+    "5": 0.7,
+    "6": 0.5,
+    "7": 0.5
+  },
+  "gods": [
+    {
+      "id": "index_home_page",
+      "label": "Homepage - Print Custom",
+      "degree": 20
+    },
+    {
+      "id": "shop_shop_archive",
+      "label": "Shop Product Archive",
+      "degree": 20
+    },
+    {
+      "id": "docs_products_catalog",
+      "label": "Products Catalog — 13-product inventory extracted from the HTML mirror",
+      "degree": 19
+    },
+    {
+      "id": "shared_woodmart_header",
+      "label": "Shared Woodmart Sticky Header (whb-header_422309)",
+      "degree": 14
+    },
+    {
+      "id": "docs_conversion_plan_variation_picker",
+      "label": "VariationPicker — client-side size/color variation component",
+      "degree": 14
+    },
+    {
+      "id": "shared_woodmart_footer",
+      "label": "Shared Footer (Elementor CMS block 29049)",
+      "degree": 12
+    },
+    {
+      "id": "product_category_bag_category_archive",
+      "label": "Bag Category Archive",
+      "degree": 10
+    },
+    {
+      "id": "product_category_front_hat_category_archive",
+      "label": "Front Hat Category Archive",
+      "degree": 10
+    },
+    {
+      "id": "product_category_hoodie_category_archive",
+      "label": "Hoodie Category Archive",
+      "degree": 10
+    },
+    {
+      "id": "product_category_shirt_category_archive",
+      "label": "Shirt Category Archive",
+      "degree": 10
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Compare Page (empty compare list)",
+      "target": "Wishlist Page (empty wishlist)",
+      "source_files": [
+        "compare/index.html",
+        "wishlist/index.html"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "About Us Page",
+      "target": "Contact Us Page (FAQ accordion + contact form)",
+      "source_files": [
+        "about-us/index.html",
+        "contact-us/index.html"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Checkout Page (mirrors cart page, empty state)",
+      "target": "Cart Page (empty cart state with checkout steps)",
+      "source_files": [
+        "checkout/index.html",
+        "cart/index.html"
+      ],
+      "confidence": "AMBIGUOUS",
+      "relation": "conceptually_related_to",
+      "why": "ambiguous connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "Camo Trucker Hat — Classic Embroidered Camouflage Mesh Cap (front-hat, $32, variable)",
+      "target": "VariationPicker — client-side size/color variation component",
+      "source_files": [
+        "product/camo-trucker-hat-classic-embroidered-camouflage-mesh-cap/index.html",
+        "docs/CONVERSION_PLAN.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "Classic Sponge Fleece Hoodie — Cozy Pullover Sweatshirt (hoodie, $75.48/$86.35, variable)",
+      "target": "VariationPicker — client-side size/color variation component",
+      "source_files": [
+        "product/classic-sponge-fleece-hoodie-cozy-pullover-sweatshirt/index.html",
+        "docs/CONVERSION_PLAN.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "ambiguous_edge",
+      "question": "What is the exact relationship between `Cart Page (empty cart state with checkout steps)` and `Checkout Page (mirrors cart page, empty state)`?",
+      "why": "Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Homepage - Print Custom` connect `Community 1` to `Community 0`, `Community 2`?",
+      "why": "High betweenness centrality (0.121) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Shop Product Archive` connect `Community 1` to `Community 0`, `Community 2`?",
+      "why": "High betweenness centrality (0.079) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Products Catalog — 13-product inventory extracted from the HTML mirror` connect `Community 5` to `Community 3`, `Community 4`, `Community 6`, `Community 7`?",
+      "why": "High betweenness centrality (0.076) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 13 inferred relationships involving `VariationPicker — client-side size/color variation component` (e.g. with `Camo Trucker Hat — Classic Embroidered Camouflage Mesh Cap (front-hat, $32, variable)` and `Classic Sponge Fleece Hoodie — Cozy Pullover Sweatshirt (hoodie, $75.48/$86.35, variable)`) actually correct?",
+      "why": "`VariationPicker — client-side size/color variation component` has 13 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Primary Navigation Menu (Home / About us / Shop / Contact us)`, `Header AJAX Product Search with Category Filter`, `Zakeke Interactive Product Designer (4.1.14)` to the rest of the system?",
+      "why": "10 weakly-connected nodes found - possible documentation gaps or missing edges."
+    }
+  ]
+}

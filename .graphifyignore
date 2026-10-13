@@ -1,0 +1,25 @@
+# graphify ignore rules for printityourway-bp
+# This folder is a wget mirror of a live WooCommerce site. Exclude everything
+# that is noise for the conversion knowledge graph.
+
+# wget query-string artifacts (real "?" saved as U+F03F): index.html?p=..., per_page/per_row filter variants
+index.html?*
+
+# WordPress runtime — not conversion source material
+wp-includes/
+wp-json/
+xmlrpc.php*
+robots.txt
+comments/
+**/feed/
+
+# Vendor plugins/themes (minified bundles, not hand-written project code)
+wp-content/plugins/
+wp-content/themes/
+
+# Uploaded media binaries (referenced from docs/PRODUCTS.md instead)
+wp-content/uploads/
+
+# Editor/tooling state
+.opencode/
+graphify-out/

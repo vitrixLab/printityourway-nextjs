@@ -1,11 +1,11 @@
-// Generates data/products.ts from scripts/mirror-products.json (extracted from the HTML mirror).
+// Generates data/products.json and data/products.ts from scripts/mirror-products.json.
 // Run: node scripts/generate-products.mjs
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const raw = JSON.parse(readFileSync(join(root, "scripts/mirror-products.json"), "utf8").replace(/^﻿/, ""));
+const mirror = JSON.parse(readFileSync(join(root, "scripts/mirror-products.json"), "utf8").replace(/^﻿/, ""));
 
 const decode = (s) =>
   s
@@ -17,98 +17,100 @@ const decode = (s) =>
     .replace(/&#8211;/g, "–")
     .replace(/&nbsp;/g, " ");
 
-const tsStr = (s) => JSON.stringify(s);
-
-const out = [];
-out.push(`// Generated from the WordPress HTML mirror by scripts/generate-products.mjs.`);
-out.push(`// Source: product/<slug>/index.html (attribute selects, data-product_variations, gallery, description tab).`);
-out.push(`// Do not hand-edit product records; re-run the generator after refreshing scripts/mirror-products.json.`);
-out.push(``);
-out.push(`export type CategorySlug = "bag" | "front-hat" | "hoodie" | "shirt";`);
-out.push(``);
-out.push(`export type ProductAttribute = { key: string; label: string; values: string[] };`);
-out.push(``);
-out.push(`export type ProductVariation = {`);
-out.push(`  attributes: Record<string, string>;`);
-out.push(`  price: number;`);
-out.push(`  regularPrice: number;`);
-out.push(`  inStock: boolean;`);
-out.push(`  image?: string;`);
-out.push(`};`);
-out.push(``);
-out.push(`export type Product = {`);
-out.push(`  slug: string;`);
-out.push(`  name: string;`);
-out.push(`  category: CategorySlug;`);
-out.push(`  /** Lowest displayed price in USD (from the source price block / variation matrix). */`);
-out.push(`  price: number;`);
-out.push(`  /** Present when the source shows two distinct price points. */`);
-out.push(`  range?: [number, number];`);
-out.push(`  /** Primary image; always equal to gallery[0]. */`);
-out.push(`  image: string;`);
-out.push(`  /** Full gallery in source order (hotlinked to the original WordPress media library). */`);
-out.push(`  gallery: string[];`);
-out.push(`  /** Real description-tab copy, one entry per source block. */`);
-out.push(`  description: string[];`);
-out.push(`  /** Source variation attributes, in source order. */`);
-out.push(`  attributes: ProductAttribute[];`);
-out.push(`  /** Per-combination data from data-product_variations. Absent when the source matrix is false. */`);
-out.push(`  variations?: ProductVariation[];`);
-out.push(`  /** Product-level SKU as rendered (the mirror renders "N/A" for every product). */`);
-out.push(`  sku?: string;`);
-out.push(`};`);
-out.push(``);
-
-out.push(`export const products: Product[] = [`);
-for (const p of raw) {
-  const name = decode(p.title);
-  const attrs = Object.entries(p.attributes || {}).map(([key, values]) => ({
+const products = mirror.map((p) => {
+  const attributes = Object.entries(p.attributes || {}).map(([key, values]) => ({
     key,
     label: decode((p.attributeLabels || {})[key] || key),
     values: values.map(decode),
   }));
-  const variations = (p.variations || []).map((v) => {
-    const rec = {};
-    for (const [k, val] of Object.entries(v.attributes || {})) {
-      rec[k.replace(/^attribute_/, "")] = decode(val);
-    }
-    const parts = [
-      `attributes: ${JSON.stringify(rec)}`,
-      `price: ${v.price}`,
-      `regularPrice: ${v.regularPrice}`,
-      `inStock: ${v.inStock === true || v.inStock === "true"}`,
-    ];
-    if (v.image) parts.push(`image: ${tsStr(v.image)}`);
-    return `{ ${parts.join(", ")} }`;
-  });
-  const gallery = (p.gallery || []).map(tsStr);
-  const desc = (p.descriptionParagraphs || []).map((d) => tsStr(decode(d).replace(/\n{2,}/g, "\n")));
+  const variations =
+    p.variationMatrixPresent && Array.isArray(p.variations) && p.variations.length > 0
+      ? p.variations.map((v) => {
+          const rec = {};
+          for (const [k, val] of Object.entries(v.attributes || {})) rec[k.replace(/^attribute_/, "")] = decode(val);
+          const out = { attributes: rec, price: v.price, regularPrice: v.regularPrice, inStock: v.inStock === true || v.inStock === "true" };
+          if (v.image) out.image = v.image;
+          return out;
+        })
+      : undefined;
+  const gallery = (p.gallery || []).map(decode);
+  const price = typeof p.price === "number" ? p.price : p.priceMin;
   const range =
     typeof p.priceMin === "number" && typeof p.priceMax === "number" && p.priceMin !== p.priceMax
-      ? `range: [${p.priceMin}, ${p.priceMax}], `
-      : "";
-  const minPrice = typeof p.price === "number" ? p.price : p.priceMin;
-  const variationsField =
-    p.variationMatrixPresent && variations.length > 0 ? `variations: [\n    ${variations.join(",\n    ")}\n  ], ` : "";
-  out.push(
-    `  { slug: ${tsStr(p.slug)}, name: ${tsStr(name)}, category: ${tsStr(p.categorySlug)}, price: ${minPrice}, ${range}image: ${gallery[0]}, gallery: [${gallery.join(", ")}], description: [${desc.join(", ")}], attributes: [${attrs
-      .map((a) => `{ key: ${tsStr(a.key)}, label: ${tsStr(a.label)}, values: ${JSON.stringify(a.values)} }`)
-      .join(", ")}], ${variationsField}sku: ${tsStr(decode(p.sku || "N/A"))} },`
-  );
-}
-out.push(`];`);
-out.push(``);
-out.push(`export const categories = [`);
-out.push(`  { slug: "bag", name: "Bags", sourceLabel: "Bag" },`);
-out.push(`  { slug: "front-hat", name: "Hats", sourceLabel: "Front Hat" },`);
-out.push(`  { slug: "hoodie", name: "Hoodies", sourceLabel: "Hoodie" },`);
-out.push(`  { slug: "shirt", name: "T-Shirts", sourceLabel: "Shirt" },`);
-out.push(`] as const;`);
-out.push(``);
-out.push(`export const money = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);`);
-out.push(``);
-out.push(`export const bySlug = (slug: string) => products.find((p) => p.slug === slug);`);
-out.push(``);
+      ? [p.priceMin, p.priceMax]
+      : undefined;
+  const rec = {
+    slug: p.slug,
+    name: decode(p.title),
+    category: p.categorySlug,
+    price,
+    ...(range ? { range } : {}),
+    image: gallery[0],
+    gallery,
+    description: (p.descriptionParagraphs || []).map((d) => decode(d).replace(/\n{2,}/g, "\n")),
+    attributes,
+    ...(variations ? { variations } : {}),
+    sku: decode(p.sku || "N/A"),
+  };
+  return rec;
+});
 
-writeFileSync(join(root, "data/products.ts"), out.join("\n"), "utf8");
-console.log(`Wrote data/products.ts with ${raw.length} products.`);
+writeFileSync(join(root, "data/products.json"), JSON.stringify(products, null, 2), "utf8");
+
+const ts = [];
+ts.push(`// Generated from the WordPress HTML mirror by scripts/generate-products.mjs.`);
+ts.push(`// Source: product/<slug>/index.html (attribute selects, data-product_variations, gallery, description tab).`);
+ts.push(`// Do not hand-edit product records; re-run the generator after refreshing scripts/mirror-products.json.`);
+ts.push(``);
+ts.push(`import raw from "./products.json";`);
+ts.push(``);
+ts.push(`export type CategorySlug = "bag" | "front-hat" | "hoodie" | "shirt";`);
+ts.push(``);
+ts.push(`export type ProductAttribute = { key: string; label: string; values: string[] };`);
+ts.push(``);
+ts.push(`export type ProductVariation = {`);
+ts.push(`  attributes: Record<string, string>;`);
+ts.push(`  price: number;`);
+ts.push(`  regularPrice: number;`);
+ts.push(`  inStock: boolean;`);
+ts.push(`  image?: string;`);
+ts.push(`};`);
+ts.push(``);
+ts.push(`export type Product = {`);
+ts.push(`  slug: string;`);
+ts.push(`  name: string;`);
+ts.push(`  category: CategorySlug;`);
+ts.push(`  /** Lowest displayed price in USD (from the source price block / variation matrix). */`);
+ts.push(`  price: number;`);
+ts.push(`  /** Present when the source shows two distinct price points. */`);
+ts.push(`  range?: [number, number];`);
+ts.push(`  /** Primary image; always equal to gallery[0]. */`);
+ts.push(`  image: string;`);
+ts.push(`  /** Full gallery in source order (hotlinked to the original WordPress media library). */`);
+ts.push(`  gallery: string[];`);
+ts.push(`  /** Real description-tab copy, one entry per source block. */`);
+ts.push(`  description: string[];`);
+ts.push(`  /** Source variation attributes, in source order. */`);
+ts.push(`  attributes: ProductAttribute[];`);
+ts.push(`  /** Per-combination data from data-product_variations. Absent when the source matrix is false. */`);
+ts.push(`  variations?: ProductVariation[];`);
+ts.push(`  /** Product-level SKU as rendered (the mirror renders "N/A" for every product). */`);
+ts.push(`  sku?: string;`);
+ts.push(`};`);
+ts.push(``);
+ts.push(`export const products = raw as unknown as Product[];`);
+ts.push(``);
+ts.push(`export const categories = [`);
+ts.push(`  { slug: "bag", name: "Bags", sourceLabel: "Bag" },`);
+ts.push(`  { slug: "front-hat", name: "Hats", sourceLabel: "Front Hat" },`);
+ts.push(`  { slug: "hoodie", name: "Hoodies", sourceLabel: "Hoodie" },`);
+ts.push(`  { slug: "shirt", name: "T-Shirts", sourceLabel: "Shirt" },`);
+ts.push(`] as const;`);
+ts.push(``);
+ts.push(`export const money = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);`);
+ts.push(``);
+ts.push(`export const bySlug = (slug: string) => products.find((p) => p.slug === slug);`);
+ts.push(``);
+
+writeFileSync(join(root, "data/products.ts"), ts.join("\n"), "utf8");
+console.log(`Wrote data/products.json and data/products.ts with ${products.length} products.`);

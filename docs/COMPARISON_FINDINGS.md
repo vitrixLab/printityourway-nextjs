@@ -2,13 +2,14 @@
 
 **Date:** 2026-10-14
 **Branch under review:** `feat/html-to-nextjs-catalog` (commit `cc6f40f`) — report committed on `dev`
+**Remediation branch:** `feat/parity-remediation` — commits `b671b21` (data), `192b794` (header/footer), `bfd069a` (pages/catalog), plus tests/docs commit. Statuses in §7 were verified against build output, `npm test`, and the extracted mirror data.
 **Sources compared:**
 - Live site: `https://printityourway.com/` (fetched 2026-10-14: home, shop, about-us, contact-us, one product page)
 - Local wget mirror: `index.html`, `shop/index.html`, `about-us/index.html`, `contact-us/index.html`, `product/<slug>/index.html` ×13 (canonical list in `docs/SITE_MAP.md`)
-- Next.js implementation: `app/**`, `components/**`, `data/products.ts`
-**Build evidence:** `npm run build` succeeds — Next.js 16.4.0, 27 routes generated (home, shop dynamic, 4 SSG categories, 13 SSG products, 5 static utility pages + 404).
+- Next.js implementation: `app/**`, `components/**`, `data/products.ts` + `data/products.json` (generated from the mirror by `scripts/extract-mirror-data.ps1` → `scripts/generate-products.mjs`)
+**Build evidence:** `npm run build` succeeds — Next.js 16.4.0, 27 routes generated (home, shop dynamic, 4 category archives, 13 SSG products, 5 static utility pages + 404). `npm test` passes (7 data-integrity tests).
 
-**Purpose:** surgical review input. Every finding is scoped for independent investigation; nothing in this document has been fixed yet.
+**Purpose:** surgical review input. Findings below are preserved as originally reported; §7 records the verified remediation status of each.
 
 ---
 
@@ -25,19 +26,21 @@
 
 ## 1. Executive Summary
 
-| Area | Verdict |
-|---|---|
-| Route parity | **PASS** — all 25 canonical URLs have a Next.js counterpart; slugs match the mirror 1:1 |
-| Base pricing | **PASS** — all 13 product prices/ranges match the mirror (one exception: cozy-three-panel upper bound, see CMP-05) |
-| Product option/variation data | **FAIL** — 12 of 13 products have missing or wrong attribute data vs the mirror's `<select name="attribute_*">` lists (CMP-01…CMP-13) |
-| Product copy (descriptions) | **FAIL** — `data/products.ts` descriptions are invented one-liners; the mirror ships long real descriptions in the WooCommerce description tab (CMP-14) |
-| Product imagery | **PARTIAL** — primary image only; mirror pages expose 4–10 gallery images per product (CMP-15) |
-| Home/shop/about/contact content | **FAIL** — structural sections and real copy from the original were not converted; current pages use placeholder brand voice (CMP-16…CMP-20) |
-| Header/footer feature parity | **FAIL** — search, category dropdown, wishlist, compare, cart totals, socials, footer columns all missing (CMP-21, CMP-22) |
-| Cart/checkout/wishlist/compare behavior | **BY DESIGN** — honest placeholders; matches the documented limitation in `README-NEXTJS.md` (CMP-23) |
-| Category label copy | **FAIL (cosmetic)** — original uses singular taxonomy labels ("Bag", "Front Hat", "Hoodie", "Shirt"); branch uses "Bags", "Hats", "Hoodies", "T-Shirts" (CMP-24) |
+*Original verdicts (pre-remediation) are preserved in §2/§3; this table reflects the remediated state — see §7 for per-finding detail.*
 
-**Top risk:** the branch currently renders plausible but *fabricated* option matrices and descriptions. Any visual QA or stakeholder demo against the live site will surface these as data errors, not styling issues.
+| Area | Original verdict | Remediated verdict |
+|---|---|---|
+| Route parity | **PASS** | **PASS** — unchanged |
+| Base pricing | **PASS** (1 exception) | **PASS** — all 13 prices/ranges correct incl. cozy-three-panel `42.57–48.08` |
+| Product option/variation data | **FAIL** (CMP-01…CMP-13) | **FIXED** — full per-product attributes + 12/13 variation matrices from the mirror; covered by `npm test` |
+| Product copy (descriptions) | **FAIL** (CMP-14) | **FIXED** — real description-tab copy (features/care/GPSR blocks) rendered on product pages |
+| Product imagery | **PARTIAL** (CMP-15) | **FIXED** — full galleries; clickable product gallery; card hover-swap |
+| Home/shop/about/contact content | **FAIL** (CMP-17…CMP-21) | **PARTIAL** — hero slider, steps, sections, banners, categories, about copy, FAQ + form restored; remaining gaps listed in §7 (tabbed home grid, share/reviews/tabs, some about sections) |
+| Header/footer feature parity | **FAIL** (CMP-22, CMP-23) | **FIXED** — top bar, logo, wired search + category dropdown, tools, mobile menu; footer columns, socials, credit; source bugs (wpmet link, "Turms" typo) fixed |
+| Cart/checkout/wishlist/compare behavior | **BY DESIGN** | **BY DESIGN** — honest placeholders preserved (CMP-24 boundary) |
+| Category label copy | **FAIL (cosmetic)** (CMP-16) | **FIXED** — singular source labels ("Bag", "Front Hat", "Hoodie", "Shirt") used in dropdown, breadcrumbs, category headings, and card links |
+
+**Top risk (resolved):** fabricated option matrices and descriptions were the top data risk; they are now generated from the mirror (`data/products.json`) and guarded by `npm test`. Remaining top risk: **CMP-28 asset hotlinking** — all imagery still loads from `printityourway.com` and must be localized before cutover.
 
 ---
 
@@ -124,4 +127,33 @@ spot-checked for the same values and agreed with the mirror.
 
 ---
 
-*Report scope: comparison only. No code or data files were modified in producing these findings.*
+## 7. Remediation Status (verified 2026-10-14 on `feat/parity-remediation`)
+
+Statuses: `FIXED` (finding resolved and verified), `PARTIAL` (core gap closed; residual scope named), `BLOCKED` (cannot close without an external decision/data), `BY DESIGN` (no action required).
+
+| ID | Status | Commit(s) | Verified by / residual notes |
+|---|---|---|---|
+| CMP-01…CMP-04, CMP-06…CMP-13 | `FIXED` | `b671b21` | Attributes extracted per product (`scripts/extract-mirror-data.ps1` → `data/products.json`); `npm test` asserts value sets, labels, uniqueness, and mirror-count parity. |
+| CMP-05 | `FIXED` | `b671b21` | Range corrected to `42.57–48.08`; all 6 mirror colors present; `variations` correctly absent (`data-product_variations="false"`); product page shows the explicit no-matrix notice. |
+| CMP-14 | `FIXED` | `b671b21` | Real description-tab paragraphs (intro, Product features, Care instructions, GPSR blocks where present) rendered per product; `white-space: pre-line` preserves source line breaks. |
+| CMP-15 | `FIXED` | `b671b21`, `bfd069a` | Full gallery arrays in source order; product page has clickable thumbnail gallery (`ProductGallery`); cards hover-swap to the second gallery image. |
+| CMP-16 | `FIXED` | `b671b21`, `bfd069a`, `192b794` | Singular `sourceLabel` now drives header dropdown, breadcrumbs, category page H1s/metadata, home tiles, and card category links. Plural `name` remains in data only (unused in UI). |
+| CMP-17 | `PARTIAL` | `bfd069a` | Restored: 3-slide hero (real headlines, copy, images, Shop Now targets) as a CSS-only auto-rotating slider (no JS plugin); Choose Product / Upload Design / Get Customized steps with source lorem copy and icons; T SHIRTS + HATS rows; Printify heading + intro paragraph; both promo banners (real bg images, subtitles, copy, buttons); POPULAR CATEGORIES with counts and singular labels. Not converted: the tabbed "New offers" grid (tabs: New Arrival / T Shirts / Hats / Hoodies / Bags) — replaced by a single all-products grid under the banners; Slider Revolution transitions are approximated by a CSS crossfade. |
+| CMP-18 | `PARTIAL` | `bfd069a` | Added: header-search params honored (`s`, `product_cat`), 12-per-page pagination with source count wording ("Showing 1–12 of 13 results"), sort labels aligned to source where data exists. `BLOCKED` residual: popularity / average-rating / latest sorts — the mirror carries no sales counts, ratings, or publish dates; price-range / stock / top-rated sidebar filters and per-page + column toggles not implemented (no rating/stock data; toggles are cosmetic preference UI). |
+| CMP-19 | `PARTIAL` | `b671b21`, `bfd069a` | Added: clickable gallery, breadcrumbs, SKU line, real descriptions, accurate attribute selects, variation-resolved price + stock display (honest "not in matrix" fallback), no-matrix notice. `BLOCKED` residual: quantity, Add to cart, compare/wishlist actions, reviews — commerce backend (CMP-24) and no review data in mirror. Not converted: Shipping and Delivery tab content, social share links, prev/next product navigation, tabbed layout (description renders inline). |
+| CMP-20 | `PARTIAL` | `bfd069a` | Restored: five real brand paragraphs + Fashion-store image + honest preview note. Not converted: "We Print Customized / T-Shirts, Apparel / And / Much More" icon row, Shop Now CTAs, "The Shirt Is a Staple for Man's" banner. |
+| CMP-21 | `FIXED` | `bfd069a` | FAQ accordion with all 6 source items (incl. the unnumbered "Where can I ship my order?" lorem answer, first item open like source) + full CF7 field set (Your Name*, Your Email*, Phone Number, Company, Your Message, "ASK A QUESTION"). Submit never fakes success: shows an explicit "Not sent" notice with the direct email. |
+| CMP-22 | `FIXED` | `192b794`, `bfd069a` | Top bar (email, United States America, 5 social icons), logo image, wired search form + "Select category" dropdown → `/shop`, Wishlist/Compare(0)/Cart(0 items $0.00) tools, bottom nav (Home / About us / Shop / Contact us) + Explore More, mobile Menu disclosure. Cosmetic gaps: tool icons are text-only; social icons render as labeled non-links because source hrefs are empty placeholders (no dead buttons). |
+| CMP-23 | `FIXED` | `192b794` | Footer: brand image, tagline, Company / Quick Links / Contact columns, social row (Facebook, Instagram, TikTok, Youtube — exact source SVG paths), Voxturr credit. Source bugs fixed intentionally: wpmet.com Home link → `/`; "Turms & Condition" → "Terms & Conditions". FAQ/Support/Privacy Policy render as inert text (no target pages exist in source; `#` links omitted per no-dead-buttons rule). |
+| CMP-24 | `BY DESIGN` | — | Honest cart/checkout/wishlist/compare placeholders preserved; card-level add-to-cart deliberately not rendered. |
+| CMP-25 | `FIXED` | `bfd069a` | Category archives are shop views: breadcrumb (Home / singular label), singular H1, "Showing all N results" count, sort control. Pagination omitted — no category exceeds 12 products. |
+| CMP-26 | `PARTIAL` | `bfd069a` | Added: hover image swap, linked singular category label, screen-reader "Price range: X through Y", "Select options" link to the product page (multi-variant products only; single-variant products show no fake add-to-cart). Omitted (would be dead buttons): Add to compare, Quick view, Add to wishlist. |
+| CMP-27 | `PARTIAL` | `bfd069a` | Default title is now "Print Custom" (matches source home title); template separator remains `|` vs source `–` — cosmetic only. |
+| CMP-28 | `BLOCKED` | — | All imagery (products, galleries, logos, banners, icons) still hotlinks `printityourway.com/wp-content/uploads/…`. Localization remains a cutover blocker (external dependency, licensing, hotlink-protection risk). |
+| Header search wiring | `FIXED` | `bfd069a` | Header form GETs `/shop?s=…&product_cat=…`; shop honors both (falls back to legacy `q`/`category` params). |
+
+**Test coverage:** `npm test` (`scripts/products.test.mjs`) guards: exact 13-slug roster, verified spot prices/ranges, cozy-only missing matrix, gallery/description/attribute invariants, variation-key/value validity and uniqueness, per-product variation-count parity with the mirror, singular source labels.
+
+---
+
+*Report scope: comparison + remediation status. Original findings (§2, §3) are unmodified audit record; §7 is the verified post-remediation overlay.*

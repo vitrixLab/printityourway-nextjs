@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-13  
 **Baseline:** `4037ec9` → `f8d78f5` (2 commits, 1918 files, 185.6 MB)  
-**Verdict: CONDITIONAL / HOLD** — 2 implementation blockers, 1 release-readiness condition, 1 optional maintenance item.
+**Verdict: CONDITIONAL / HOLD** — 1 implementation blocker (Decision A), 1 documentation-governance decision (Decision B), 1 release-readiness condition (Decision C), and 1 optional maintenance item (Decision D).
 
 ---
 
@@ -94,7 +94,7 @@ The terms "12 canonical route files" and "12 route templates" from earlier mater
 |---|---|---|---|---|---|
 | PR-1 | **High** | `PRODUCTS.md:4` | "two price points = sale + regular" | **0 of 13 have `<ins>/<del>` sale markup.** Dual prices are WooCommerce variable price ranges (`Price range: $75.48 through $86.35`). Verified via `<ins>` absence + `screen-reader-text` "Price range". | `VERIFIED` |
 | PR-2 | **High** | `PRODUCTS.md:6` | "option values embedded in each page's variations JSON" | **Exception:** `cozy-three-panel-fleece-hoodie` has `data-product_variations="false"` — matrix **missing from mirror**. Only `<select>` options (XS–3XL × 6 colors = 42 combinations) + rendered range $42.57–$86.35 recoverable. Per-variation prices: `UNKNOWN`. Per-variation stock: `UNKNOWN`. | `VERIFIED` |
-| PR-3 | Medium | `PRODUCTS.md:35` | "~8-10 gallery URLs" | Actual gallery slots per product: 2–24 (cozy=24, sponge=8, several=2–5). Total unique image files: 72. Understated. | `VERIFIED` |
+| PR-3 | Medium | `PRODUCTS.md:35` | "~8-10 gallery URLs" | Actual gallery slots per product: 2–24 (cozy=24, sponge=8, several=2–5). The appendix's per-product image counts sum to 140, which conflicts with the 72-slot total if treated as the same metric. Keep slots, per-product unique paths, and globally deduplicated paths separate; the global distinct-path total is not established by this report. | `VERIFIED` |
 | PR-4 | Medium | `PRODUCTS.md:5` | `attribute_sizes`/`attribute_colors` examples | Attribute keys are heterogeneous across products (see table below). `ProductVariation` type must use `Record<string, string>` map. | `VERIFIED` |
 
 ### Attribute Key Heterogeneity
@@ -171,11 +171,11 @@ The terms "12 canonical route files" and "12 route templates" from earlier mater
 | **B. SaaS commerce (Shopify/Medusa)** | Re-enter 13 products | Re-create variations manually | SaaS-provided | SaaS-provided | SaaS-managed | SaaS-managed | SaaS-hosted |
 | **C. Static catalog** | Static `data/products.ts` | Static variation data (cozy hoodie: options only, no matrix) | Placeholder or link out | Placeholder or link out | None | None | Static hosting only |
 
-**Until a decision is recorded, cart/checkout implementation remains `BLOCKED`.**
+**Until Decision A is recorded, cart/checkout implementation remains `BLOCKED`.** Decision B governs whether the three source documents are corrected in this PR or separately; it does not independently block unrelated scaffolding.
 
 ### Decision B — Documentation Authority
 
-**Status: `NOT DECIDED`** — is `docs/REVIEW_REPORT.md` advisory or authoritative?
+**Status: `NOT DECIDED`** — documentation-governance decision; not itself a commerce implementation blocker.
 
 - If **advisory**: corrections to `SITE_MAP.md`, `PRODUCTS.md`, `CONVERSION_PLAN.md` require separate approval.
 - If **authoritative**: this report supersedes claims in those files; they should be marked or corrected.
@@ -211,9 +211,10 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 
 | Category | Count | Items |
 |---|---|---|
-| **Implementation blockers** | **2** | Decision A (commerce architecture), Decision B (doc authority) |
+| **Implementation blockers** | **1** | Decision A (commerce architecture; cart/checkout only) |
+| **Documentation-governance decision** | **1** | Decision B (authority and disposition of the three source docs) |
 | **Release-readiness conditions** | **1** | Decision C (vendor licensing) |
-| **Documentation corrections needed** | **9** | SM-1, SM-2, SM-3, SM-4, PR-1, PR-2, PR-3, PR-4, AR-1, AR-2, AR-3 (11 findings across 3 docs) |
+| **Documentation findings** | **11** | SM-1–SM-4 (4), PR-1–PR-4 (4), AR-1–AR-3 (3); across 3 docs |
 | **Optional maintenance** | **2** | Decision D (git gc), `.gitignore` addition at scaffold |
 
 ---
@@ -236,7 +237,7 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 | sweet-dreams-t-shirt-retro-cozy-sleepwear-graphic-tee | ✓ | shirt | 20.68/29.43 | 7 | 4 | 9 | 9/9 | ✓ | No |
 | white-crewneck-t-shirt | ✓ | shirt | 19.18/23.75 | 6 | 4 | 9 | 9/9 | ✓ | No |
 
-**Totals:** 13/13 products, 72 gallery slots, 72 unique image files, 72/72 present locally, 1 missing variation matrix (cozy-three-panel), 0 sale markup.
+**Totals:** 13/13 products; 72 reported gallery slots; per-product unique image counts sum to 140 (7+12+11+29+10+7+8+9+8+10+11+9+9); the globally deduplicated image-path total is **not established**. Appendix local counts sum to 140/140 per-product references, but this is not proof of 140 globally unique paths. Re-run the inventory below before asserting a global unique-file total. One missing variation matrix (cozy-three-panel); 0 sale markup.
 
 ---
 
@@ -246,7 +247,7 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 # Route counts
 (Get-ChildItem -Directory | Where-Object { Test-Path "$($_.FullName)\index.html" }).Count  # canonical route dirs
 (Get-ChildItem product -Directory).Count  # 13 products
-(Get-ChildItem -Recurse -Filter index.html -Exclude wp-content,wp-includes).Count  # 46 HTML files
+(Get-ChildItem -Recurse -File -Filter index.html | Where-Object { $_.FullName -notmatch '[\\/](wp-content|wp-includes)[\\/]' }).Count  # expected 46 only if source inventory confirms this scope; feeds/wp-json counted explicitly
 
 # Product verification
 (Get-ChildItem product -Directory | ForEach-Object { 
@@ -259,9 +260,24 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
   }
 }) | Format-Table
 
-# Gallery image count
-$t = Get-Content product\*\index.html -Raw
-([regex]::Matches($t, 'wp-content/uploads/\d{4}/\d{2}/[^"\s]+\.(?:jpg|jpeg|png|webp)')).Count
+# Gallery image slots and referenced image-path inventory (run from repository root)
+$pages = Get-ChildItem product -Directory | ForEach-Object { Get-Item (Join-Path $_.FullName 'index.html') }
+$matches = foreach ($page in $pages) {
+  $html = Get-Content $page.FullName -Raw
+  foreach ($m in [regex]::Matches($html, 'wp-content/uploads/\d{4}/\d{2}/[^"''\s<>]+\.(?:jpg|jpeg|png|webp)', 'IgnoreCase')) {
+    [PSCustomObject]@{ Product = $page.Directory.Name; Path = $m.Value }
+  }
+}
+# Counts references, per-product distinct paths, and globally distinct paths separately.
+[PSCustomObject]@{
+  ImageReferences = @($matches).Count
+  ProductPathPairs = (@($matches | Sort-Object Product, Path -Unique)).Count
+  GlobalDistinctPaths = (@($matches.Path | Sort-Object -Unique)).Count
+  MissingLocalPaths = (@($matches.Path | Sort-Object -Unique | Where-Object {
+    $local = $_ -replace '/', [IO.Path]::DirectorySeparatorChar
+    -not (Test-Path -LiteralPath $local)
+  })).Count
+} | Format-List
 
 # Secrets scan (manual)
 Select-String -Path docs\*.md -Pattern 'AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|-----BEGIN' -AllMatches
@@ -272,5 +288,14 @@ git count-objects -vH
 ```
 
 ---
+
+## Audit and Handoff Instructions
+
+1. Run the route and gallery commands from the repository root on the exact commit being reviewed; save stdout with the commit SHA and PowerShell version in the review record.
+2. Do not equate gallery `<figure>` slots, raw image references, per-product distinct paths, and globally distinct file paths. Publish each metric separately and investigate any mismatch before marking it `VERIFIED`.
+3. The appendix's 140 summed per-product counts do not prove 140 globally distinct files. The previous 72 unique-file / 72-of-72 claim is withdrawn until a deduplicated inventory confirms it.
+4. Keep Decision A as the only current implementation blocker, limited to cart/checkout. Resolve Decision B by recording whether the three source docs are corrected here or in a separately approved change. Do not treat governance uncertainty as a blanket blocker for unrelated scaffolding.
+5. Do not claim build, runtime, security-scanner, or live-commerce validation unless the corresponding command/service was actually run; record unavailable checks as `UNKNOWN` with the reason.
+6. This report is documentation-only. No source application behavior, vendor assets, credentials, or git object-store maintenance is changed by this remediation.
 
 **Merge authorization was not granted. This PR is for review only.**

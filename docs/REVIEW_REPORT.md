@@ -81,12 +81,28 @@ The terms "12 canonical route files" and "12 route templates" from earlier mater
 | Categories match doc | 13/13 | `VERIFIED` |
 | Price values match doc | 13/13 | `VERIFIED` |
 | Long descriptions present | 13/13 | `VERIFIED` |
-| Gallery slots (figure elements) | 72 | `PARTIAL` — rerun against source HTML |
-| Per-product unique image paths (sum of appendix counts) | 140 | `PARTIAL` — not a global distinct-path total |
-| Referenced image files present locally | 140/140 per-product references | `PARTIAL` — rerun inventory; global distinct-path total not established |
+| Gallery `<figure>` slots | 72 | `VERIFIED` — figure-scoped extraction, commit `fe2dc8b` |
+| Full-size gallery image paths (size-suffix stripped, figure-scoped) | 72 globally distinct | `VERIFIED` — 0 cross-product overlap in figure markup |
+| Per-product full-size gallery counts (figure-scoped) | 2+8+4+24+4+2+4+3+4+5+4+4+4 = 72 | `VERIFIED` — sum equals global distinct (no overlap) |
+| Figure-scoped gallery files present locally | 72/72 | `VERIFIED` — 0 missing |
+| Broader upload paths on product pages (incl. related products, theme assets, size-stripped) | 79 globally distinct across 13 pages | `VERIFIED` — includes 33 paths shared across products (theme leftovers: `wd-ship-*`, `grocery-*`, `Print-it*`) |
 | Products with `<ins>/<del>` sale markup | 0/13 | `VERIFIED` |
 | Products with variation matrix | 12/13 | `VERIFIED` |
 | Products with out-of-stock state | 0/13 | `VERIFIED` |
+
+**Gallery metric definitions:**
+
+| Metric | Definition | Value |
+|---|---|---|
+| Figure slots | `<figure class="woocommerce-product-gallery__image">` elements | 72 |
+| Figure image references | All `wp-content/uploads` URLs inside figure elements (includes `srcset` size variants like `-700x700`, `-150x150`) | 936 |
+| Product-path pairs (figure-scoped) | Distinct `(product, path)` pairs within figures | 576 |
+| Global distinct paths (figure-scoped, all sizes) | Distinct paths within figures across all products, size variants counted separately | 576 |
+| Full-size gallery images (figure-scoped) | Distinct paths within figures, `-WxH` size suffixes stripped | **72** |
+| Cross-product overlap (figure-scoped) | Paths appearing in >1 product's figure markup | **0** |
+| Figure-scoped files missing locally | Referenced figure paths not found on disk | **0** |
+
+The appendix's per-product "Unique Images" column (summing to 140) was produced by a different extraction that counted all `wp-content/uploads` URLs on each page — including related-product thumbnails, theme demo assets (`wd-ship-*`, `grocery-*`, `Print-it*`), and size variants — not just gallery figure markup. It is a page-wide metric, not a gallery inventory. The figure-scoped gallery inventory is 72 globally distinct full-size images with 0 cross-product overlap and 0 missing locally.
 
 ### Doc Inaccuracies
 
@@ -94,7 +110,7 @@ The terms "12 canonical route files" and "12 route templates" from earlier mater
 |---|---|---|---|---|---|
 | PR-1 | **High** | `PRODUCTS.md:4` | "two price points = sale + regular" | **0 of 13 have `<ins>/<del>` sale markup.** Dual prices are WooCommerce variable price ranges (`Price range: $75.48 through $86.35`). Verified via `<ins>` absence + `screen-reader-text` "Price range". | `VERIFIED` |
 | PR-2 | **High** | `PRODUCTS.md:6` | "option values embedded in each page's variations JSON" | **Exception:** `cozy-three-panel-fleece-hoodie` has `data-product_variations="false"` — matrix **missing from mirror**. Only `<select>` options (XS–3XL × 6 colors = 42 combinations) + rendered range $42.57–$86.35 recoverable. Per-variation prices: `UNKNOWN`. Per-variation stock: `UNKNOWN`. | `VERIFIED` |
-| PR-3 | Medium | `PRODUCTS.md:35` | "~8-10 gallery URLs" | Actual gallery slots per product: 2–24 (cozy=24, sponge=8, several=2–5). The appendix's per-product image counts sum to 140, which conflicts with the 72-slot total if treated as the same metric. Keep slots, per-product unique paths, and globally deduplicated paths separate; the global distinct-path total is not established by this report. | `VERIFIED` |
+| PR-3 | Medium | `PRODUCTS.md:35` | "~8-10 gallery URLs" | Actual gallery `<figure>` slots per product: 2–24 (cozy=24, sponge=8, several=2–5). Figure-scoped full-size gallery images: 72 globally distinct, 0 cross-product overlap, 0 missing locally. The appendix's per-product "Unique Images" column (summing to 140) is a page-wide metric (includes related products, theme assets, size variants), not a gallery inventory. | `VERIFIED` |
 | PR-4 | Medium | `PRODUCTS.md:5` | `attribute_sizes`/`attribute_colors` examples | Attribute keys are heterogeneous across products (see table below). `ProductVariation` type must use `Record<string, string>` map. | `VERIFIED` |
 
 ### Attribute Key Heterogeneity
@@ -221,7 +237,7 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 
 ## Appendix — Per-Product Extraction (Revalidated at `f8d78f5`)
 
-| Slug | Title | Cat | Prices | Vars | Gallery Slots | Unique Images | Local imgs | Desc | Sale Markup |
+| Slug | Title | Cat | Prices | Vars | Gallery Slots | Page-wide Upload Paths† | Local imgs | Desc | Sale Markup |
 |---|---|---|---|---|---|---|---|---|---|
 | camo-trucker-hat-classic-embroidered-camouflage-mesh-cap | ✓ | front-hat | 32 | 1 | 2 | 7 | 7/7 | ✓ | No |
 | classic-sponge-fleece-hoodie-cozy-pullover-sweatshirt | ✓ | hoodie | 75.48/86.35 | 24 | 8 | 12 | 12/12 | ✓ | No |
@@ -237,7 +253,9 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 | sweet-dreams-t-shirt-retro-cozy-sleepwear-graphic-tee | ✓ | shirt | 20.68/29.43 | 7 | 4 | 9 | 9/9 | ✓ | No |
 | white-crewneck-t-shirt | ✓ | shirt | 19.18/23.75 | 6 | 4 | 9 | 9/9 | ✓ | No |
 
-**Totals:** 13/13 products; 72 reported gallery slots; per-product unique image counts sum to 140 (7+12+11+29+10+7+8+9+8+10+11+9+9); the globally deduplicated image-path total is **not established**. Appendix local counts sum to 140/140 per-product references, but this is not proof of 140 globally unique paths. Re-run the inventory below before asserting a global unique-file total. One missing variation matrix (cozy-three-panel); 0 sale markup.
+† Page-wide upload paths = distinct `wp-content/uploads` URLs on the page (size-suffix stripped), including gallery images, related-product thumbnails, and theme assets. Not a gallery inventory. Figure-scoped full-size gallery images: 72 globally distinct (see Catalog Completeness).
+
+**Totals:** 13/13 products; 72 gallery `<figure>` slots; 72 globally distinct full-size gallery images (figure-scoped, size-suffix stripped, 0 cross-product overlap, 0 missing locally). The appendix's per-product "Unique Images" column sums to 140 — that is a page-wide metric (includes related-product thumbnails, theme assets, size variants), not a gallery inventory. One missing variation matrix (cozy-three-panel); 0 sale markup.
 
 ---
 
@@ -247,7 +265,7 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
 # Route counts
 (Get-ChildItem -Directory | Where-Object { Test-Path "$($_.FullName)\index.html" }).Count  # canonical route dirs
 (Get-ChildItem product -Directory).Count  # 13 products
-(Get-ChildItem -Recurse -File -Filter index.html | Where-Object { $_.FullName -notmatch '[\\/](wp-content|wp-includes)[\\/]' }).Count  # expected 46 only if source inventory confirms this scope; feeds/wp-json counted explicitly
+(Get-ChildItem -Recurse -File -Filter index.html | Where-Object { $_.FullName -notmatch '[\\/](wp-content|wp-includes)[\\/]' }).Count  # verified 46 at fe2dc8b: 25 canonical + 20 feed + 1 wp-json
 
 # Product verification
 (Get-ChildItem product -Directory | ForEach-Object { 
@@ -300,7 +318,7 @@ git count-objects -vH
 
 1. Run the route and gallery commands from the repository root on the exact commit being reviewed; save stdout with the commit SHA and PowerShell version in the review record.
 2. Do not equate gallery `<figure>` slots, raw image references, per-product distinct paths, and globally distinct file paths. Publish each metric separately and investigate any mismatch before marking it `VERIFIED`.
-3. The appendix's 140 summed per-product counts do not prove 140 globally distinct files. The previous 72 unique-file / 72-of-72 claim is withdrawn until a deduplicated inventory confirms it.
+3. The appendix's per-product "Page-wide Upload Paths" column (summing to 140) is a page-wide metric, not a gallery inventory. The figure-scoped gallery inventory is 72 globally distinct full-size images with 0 cross-product overlap and 0 missing locally — verified by deduplicated extraction at `fe2dc8b`.
 4. Keep Decision A as the only current implementation blocker, limited to cart/checkout. Resolve Decision B by recording whether the three source docs are corrected here or in a separately approved change. Do not treat governance uncertainty as a blanket blocker for unrelated scaffolding.
 5. Do not claim build, runtime, security-scanner, or live-commerce validation unless the corresponding command/service was actually run; record unavailable checks as `UNKNOWN` with the reason.
 6. This report is documentation-only. No source application behavior, vendor assets, credentials, or git object-store maintenance is changed by this remediation.

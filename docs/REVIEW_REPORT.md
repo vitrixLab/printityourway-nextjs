@@ -260,20 +260,27 @@ This PR corrects `REVIEW_REPORT.md` but does not modify the other three docs (pe
   }
 }) | Format-Table
 
-# Gallery image slots and referenced image-path inventory (run from repository root)
+# Gallery figure slots and image paths inside those figures (run from repository root)
 $pages = Get-ChildItem product -Directory | ForEach-Object { Get-Item (Join-Path $_.FullName 'index.html') }
-$matches = foreach ($page in $pages) {
+$figures = foreach ($page in $pages) {
   $html = Get-Content $page.FullName -Raw
-  foreach ($m in [regex]::Matches($html, 'wp-content/uploads/\d{4}/\d{2}/[^"''\s<>]+\.(?:jpg|jpeg|png|webp)', 'IgnoreCase')) {
-    [PSCustomObject]@{ Product = $page.Directory.Name; Path = $m.Value }
+  foreach ($figure in [regex]::Matches($html, '<figure\b[\s\S]*?</figure>', 'IgnoreCase')) {
+    [PSCustomObject]@{ Product = $page.Directory.Name; Html = $figure.Value }
   }
 }
-# Counts references, per-product distinct paths, and globally distinct paths separately.
+$matches = foreach ($figure in $figures) {
+  foreach ($m in [regex]::Matches($figure.Html, 'wp-content/uploads/\d{4}/\d{2}/[^"''\s<>]+\.(?:jpg|jpeg|png|webp)', 'IgnoreCase')) {
+    [PSCustomObject]@{ Product = $figure.Product; Path = $m.Value }
+  }
+}
+# Keep figure slots, product/path pairs, and global paths as distinct metrics.
+$globalPaths = @($matches.Path | Sort-Object -Unique)
 [PSCustomObject]@{
-  ImageReferences = @($matches).Count
+  GalleryFigureSlots = @($figures).Count
+  FigureImageReferences = @($matches).Count
   ProductPathPairs = (@($matches | Sort-Object Product, Path -Unique)).Count
-  GlobalDistinctPaths = (@($matches.Path | Sort-Object -Unique)).Count
-  MissingLocalPaths = (@($matches.Path | Sort-Object -Unique | Where-Object {
+  GlobalDistinctPaths = $globalPaths.Count
+  MissingLocalPaths = (@($globalPaths | Where-Object {
     $local = $_ -replace '/', [IO.Path]::DirectorySeparatorChar
     -not (Test-Path -LiteralPath $local)
   })).Count

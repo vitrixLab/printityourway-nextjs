@@ -81,9 +81,9 @@ The terms "12 canonical route files" and "12 route templates" from earlier mater
 | Categories match doc | 13/13 | `VERIFIED` |
 | Price values match doc | 13/13 | `VERIFIED` |
 | Long descriptions present | 13/13 | `VERIFIED` |
-| Gallery slots (figure elements) | 72 | `VERIFIED` |
-| Unique gallery image files | 72 | `VERIFIED` |
-| Gallery images present locally | 72/72 | `VERIFIED` |
+| Gallery slots (figure elements) | 72 | `PARTIAL` — rerun against source HTML |
+| Per-product unique image paths (sum of appendix counts) | 140 | `PARTIAL` — not a global distinct-path total |
+| Referenced image files present locally | 140/140 per-product references | `PARTIAL` — rerun inventory; global distinct-path total not established |
 | Products with `<ins>/<del>` sale markup | 0/13 | `VERIFIED` |
 | Products with variation matrix | 12/13 | `VERIFIED` |
 | Products with out-of-stock state | 0/13 | `VERIFIED` |

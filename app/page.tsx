@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { products, categories } from "@/data/products";
-import { Catalog } from "@/components/Catalog";
 import { HeroSlider } from "@/components/HeroSlider";
 import { OfferTabs } from "@/components/OfferTabs";
 
@@ -74,15 +73,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section soft">
-        <div className="shell">
-          <div className="heading">
-            <div><span className="eyebrow">More to explore</span><h2>Made for Your Everyday</h2></div>
-            <Link className="text-link" href="/shop">Browse the collection <span aria-hidden="true">→</span></Link>
-          </div>
-          <Catalog items={products.slice(0, 8)} />
-        </div>
-      </section>
     </>
   );
 }

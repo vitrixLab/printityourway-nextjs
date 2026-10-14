@@ -1,6 +1,6 @@
 import type {Metadata} from "next";import Link from "next/link";import {notFound} from "next/navigation";import {categories,products} from "@/data/products";import {Catalog} from "@/components/Catalog";
 export function generateStaticParams(){return categories.map(c=>({slug:c.slug}))}
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return {title:categories.find(c=>c.slug===slug)?.sourceLabel??"Category"}}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return {title:categories.find(c=>c.slug===slug)?.sourceLabel??"Category",alternates:{canonical:`/product-category/${slug}`}}}
 export default async function Category({params,searchParams}:{params:Promise<{slug:string}>;searchParams:Promise<{orderby?:string}>}){const {slug}=await params;const {orderby}=await searchParams;const category=categories.find(c=>c.slug===slug);if(!category)notFound();let list=products.filter(p=>p.category===category.slug);if(orderby==="price")list=[...list].sort((a,b)=>a.price-b.price);if(orderby==="price-desc")list=[...list].sort((a,b)=>b.price-a.price);
   return <section className="shell">
     <p className="muted breadcrumb"><Link href="/">Home</Link> / {category.sourceLabel}</p>

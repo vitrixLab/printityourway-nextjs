@@ -1,5 +1,5 @@
 import type {Metadata} from "next";import Link from "next/link";import {products,categories} from "@/data/products";import {Catalog} from "@/components/Catalog";
-export const metadata:Metadata={title:"Shop"};
+export const metadata:Metadata={title:"Shop",alternates:{canonical:"/shop"}};
 const PER_PAGE=24;
 export default async function Shop({searchParams}:{searchParams:Promise<{category?:string;product_cat?:string;q?:string;s?:string;orderby?:string;page?:string}>}){const p=await searchParams;
   const q=(p.s??p.q??"").trim().toLowerCase();

@@ -11,7 +11,7 @@ export function ProductGallery({ images, alt, selectedImage }: { images: string[
 
   return (
     <div>
-      <div className="detail-photo"><img src={active} alt={alt} /></div>
+      <div className="detail-photo"><img key={active} className="product-gallery-image" src={active} alt={alt} /></div>
       {images.length > 1 && (
         <div className="gallery-thumbs">
           {images.map((src, i) => (

@@ -1,0 +1,249 @@
+From a7544eca8df18bb25341e6c5f220a11ed5486760 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 14 Oct 2026 11:47:38 +0000
+Subject: [PATCH 2/2] test: add Playwright e2e suite for PR1 (canonicals,
+ noindex, duplicates, gallery, menu, filters, mailto, hero)
+
+Run: npm run build && npm run test:e2e (first time: npx playwright install chromium).
+Remote images are stubbed. Suite excluded from the Next type-check.
+---
+ .gitignore            |   2 +
+ package.json          |   4 +-
+ playwright.config.ts  |  16 +++++
+ tests/e2e/pr1.spec.ts | 147 ++++++++++++++++++++++++++++++++++++++++++
+ tsconfig.json         |   7 +-
+ 5 files changed, 173 insertions(+), 3 deletions(-)
+ create mode 100644 playwright.config.ts
+ create mode 100644 tests/e2e/pr1.spec.ts
+
+diff --git a/.gitignore b/.gitignore
+index bbf1680..f0b66a3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -9,3 +9,5 @@ next-env.d.ts
+ .env.*
+ !.env.example
+ .DS_Store
++test-results/
++playwright-report/
+diff --git a/package.json b/package.json
+index 7203b02..384348d 100644
+--- a/package.json
++++ b/package.json
+@@ -7,7 +7,8 @@
+     "build": "next build",
+     "start": "next start",
+     "lint": "eslint .",
+-    "test": "node --test scripts/products.test.mjs"
++    "test": "node --test scripts/products.test.mjs",
++    "test:e2e": "playwright test"
+   },
+   "dependencies": {
+     "next": "^16.0.0",
+@@ -15,6 +16,7 @@
+     "react-dom": "^19.2.0"
+   },
+   "devDependencies": {
++    "@playwright/test": "1.56.0",
+     "@types/node": "^22.0.0",
+     "@types/react": "^19.0.0",
+     "@types/react-dom": "^19.0.0",
+diff --git a/playwright.config.ts b/playwright.config.ts
+new file mode 100644
+index 0000000..6f98c18
+--- /dev/null
++++ b/playwright.config.ts
+@@ -0,0 +1,16 @@
++import { defineConfig } from "@playwright/test";
++
++// Run `npm run build` first, then `npm run test:e2e`.
++// First-time setup on a new machine: `npx playwright install chromium`.
++export default defineConfig({
++  testDir: "./tests/e2e",
++  fullyParallel: true,
++  reporter: [["list"]],
++  use: { baseURL: "http://localhost:3100", browserName: "chromium" },
++  webServer: {
++    command: "npm run start -- -p 3100",
++    url: "http://localhost:3100",
++    reuseExistingServer: !process.env.CI,
++    timeout: 60_000,
++  },
++});
+diff --git a/tests/e2e/pr1.spec.ts b/tests/e2e/pr1.spec.ts
+new file mode 100644
+index 0000000..c0e72a5
+--- /dev/null
++++ b/tests/e2e/pr1.spec.ts
+@@ -0,0 +1,147 @@
++import { test, expect, type Page } from "@playwright/test";
++
++// Remote catalog images are stubbed so tests are fast, offline-safe and deterministic.
++const STUB = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#ddd"/></svg>';
++test.beforeEach(async ({ page }) => {
++  await page.route(/printityourway\.com\/wp-content/, (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: STUB }));
++});
++
++const canonicalOf = (page: Page) => page.locator('link[rel="canonical"]').getAttribute("href");
++
++test.describe("N-01 canonical and indexing", () => {
++  test("every sitemap URL has its own canonical", async ({ page, request, baseURL }) => {
++    const xml = await (await request.get("/sitemap.xml")).text();
++    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
++    expect(locs.length).toBeGreaterThan(10);
++    for (const loc of locs) {
++      const path = new URL(loc).pathname;
++      await page.goto(`${baseURL}${path}`);
++      expect(await canonicalOf(page), `canonical for ${path}`).toBe(loc);
++    }
++  });
++
++  test("canonicals never contain query strings", async ({ page }) => {
++    await page.goto("/shop?sort=price&page=2");
++    expect(await canonicalOf(page)).toBe("https://printityourway.com/shop");
++    await page.goto("/contact-us?topic=custom&product=white-crewneck-t-shirt");
++    expect(await canonicalOf(page)).toBe("https://printityourway.com/contact-us");
++  });
++
++  test("utility pages are noindex and crawlable", async ({ page, request }) => {
++    for (const path of ["/cart", "/checkout", "/wishlist", "/compare"]) {
++      await page.goto(path);
++      expect(await page.locator('meta[name="robots"]').getAttribute("content"), path).toContain("noindex");
++    }
++    const robots = await (await request.get("/robots.txt")).text();
++    for (const path of ["/cart", "/checkout", "/wishlist", "/compare"]) expect(robots).not.toContain(`Disallow: ${path}`);
++  });
++});
++
++test("N-02 home has no duplicate products inside any grid", async ({ page }) => {
++  await page.goto("/");
++  const grids = await page.locator(".grid").evaluateAll((els) => els.map((g) => [...g.querySelectorAll(".card h3")].map((h) => h.textContent?.trim() ?? "")));
++  expect(grids.length).toBeGreaterThan(0);
++  for (const titles of grids) expect(new Set(titles).size).toBe(titles.length);
++  const keys = grids.map((t) => [...t].sort().join("|"));
++  expect(new Set(keys).size).toBe(keys.length); // no two grids are identical sets
++});
++
++test("N-03 gallery thumbnails work before and after choosing options", async ({ page }) => {
++  await page.goto("/product/white-crewneck-t-shirt");
++  await page.waitForLoadState("networkidle");
++  const thumbs = page.locator(".gallery-thumbs button");
++  const activeIndex = () => thumbs.evaluateAll((els) => els.findIndex((b) => b.classList.contains("active")));
++  await thumbs.nth(2).click();
++  expect(await activeIndex()).toBe(2);
++  const selects = page.locator(".options select");
++  for (let i = 0; i < (await selects.count()); i++) await selects.nth(i).selectOption({ index: 1 });
++  await thumbs.nth(3).click();
++  expect(await activeIndex()).toBe(3);
++  await thumbs.nth(1).click();
++  expect(await activeIndex()).toBe(1);
++});
++
++test.describe("N-05 mobile menu", () => {
++  test.use({ viewport: { width: 390, height: 844 } });
++  test("closes after navigation and on Escape", async ({ page }) => {
++    await page.goto("/");
++    await page.waitForLoadState("networkidle");
++    const toggle = page.getByRole("button", { name: "Menu" });
++    await toggle.click();
++    await expect(page.locator("#mobile-nav")).toBeVisible();
++    await page.locator("#mobile-nav").getByRole("link", { name: "Shop" }).click();
++    await expect(page).toHaveURL(/\/shop$/);
++    await expect(page.locator("#mobile-nav")).toHaveCount(0);
++    await toggle.click();
++    await expect(page.locator("#mobile-nav")).toBeVisible();
++    await page.keyboard.press("Escape");
++    await expect(page.locator("#mobile-nav")).toHaveCount(0);
++    await expect(toggle).toBeFocused();
++    await expect(toggle).toHaveAttribute("aria-expanded", "false");
++  });
++});
++
++test("N-06 offer filters expose pressed state", async ({ page }) => {
++  await page.goto("/");
++  await page.waitForLoadState("networkidle");
++  const all = page.getByRole("button", { name: "All", exact: true });
++  const hoodies = page.getByRole("button", { name: "Hoodies" });
++  await expect(all).toHaveAttribute("aria-pressed", "true");
++  await hoodies.click();
++  await expect(hoodies).toHaveAttribute("aria-pressed", "true");
++  await expect(all).toHaveAttribute("aria-pressed", "false");
++  await expect(page.locator("#offer-panel .card")).toHaveCount(3);
++  await expect(page.locator('[role="tab"], [role="tablist"]')).toHaveCount(0);
++});
++
++test.describe("N-04 custom order handoff", () => {
++  test("product page offers a prefilled mailto", async ({ page }) => {
++    await page.goto("/product/white-crewneck-t-shirt");
++    const href = (await page.getByRole("link", { name: "Email us about this item" }).getAttribute("href")) ?? "";
++    expect(href.startsWith("mailto:Contact@printityourway.com?")).toBe(true);
++    const body = decodeURIComponent(href.split("body=")[1]);
++    expect(body).toContain("White Crewneck T-Shirt");
++    expect(decodeURIComponent(href.split("subject=")[1].split("&")[0])).toContain("Custom order inquiry");
++  });
++
++  test("contact form mailto tracks input and submit never claims delivery", async ({ page }) => {
++    await page.goto("/contact-us?topic=custom&product=white-crewneck-t-shirt");
++    await page.waitForLoadState("networkidle");
++    await page.locator('.contact-form input[name="your-name"]').fill("Ada Lovelace");
++    await page.locator('.contact-form input[name="your-email"]').fill("ada@example.com");
++    const href = (await page.getByRole("link", { name: "Open in email app" }).getAttribute("href")) ?? "";
++    const body = decodeURIComponent(href.split("body=")[1]);
++    expect(body).toContain("White Crewneck T-Shirt");
++    expect(body).toContain("Ada Lovelace");
++    expect(body).toContain("ada@example.com");
++    await page.locator(".contact-form").getByRole("button", { name: "ASK A QUESTION" }).click();
++    const alert = page.locator(".contact-form [role=alert]");
++    await expect(alert).toContainText("Not sent");
++    await expect(alert).not.toContainText(/success|thank you|message sent/i);
++  });
++
++  test("mailto body is capped", async ({ page }) => {
++    await page.goto("/contact-us");
++    await page.waitForLoadState("networkidle");
++    await page.locator(".contact-form textarea").fill("x".repeat(2000));
++    const href = (await page.getByRole("link", { name: "Open in email app" }).getAttribute("href")) ?? "";
++    expect(decodeURIComponent(href.split("body=")[1]).length).toBeLessThanOrEqual(1500);
++  });
++});
++
++test("regression: hero CTA targets its own slide and there is one h1", async ({ page }) => {
++  await page.goto("/");
++  await page.waitForLoadState("networkidle");
++  await expect(page.locator("h1")).toHaveCount(1);
++  for (let i = 0; i < 3; i++) {
++    const result = await page.evaluate(() => {
++      const slide = [...document.querySelectorAll<HTMLElement>(".hero-slide")].find((s) => !s.hidden)!;
++      const a = slide.querySelector("a")!;
++      const r = a.getBoundingClientRect();
++      const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest("a");
++      return { own: a.getAttribute("href"), top: top?.getAttribute("href") };
++    });
++    expect(result.top).toBe(result.own);
++    await page.getByRole("button", { name: "Next featured collection" }).click();
++  }
++});
+diff --git a/tsconfig.json b/tsconfig.json
+index 48346ee..a00739f 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -32,11 +32,14 @@
+     "next-env.d.ts",
+     "**/*.ts",
+     "**/*.tsx",
+-    ".next/types/**/*.ts"
++    ".next/types/**/*.ts",
++    ".next/dev/types/**/*.ts"
+   ],
+   "exclude": [
+     "node_modules",
+     "wp-content",
+-    "wp-includes"
++    "wp-includes",
++    "tests",
++    "playwright.config.ts"
+   ]
+ }
+-- 
+2.43.0
+

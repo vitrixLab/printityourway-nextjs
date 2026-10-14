@@ -1,4 +1,4 @@
-import type {Metadata} from "next";import {ContactForm} from "@/components/ContactForm";export const metadata:Metadata={title:"Contact us"};
+import type {Metadata} from "next";import {ContactForm} from "@/components/ContactForm";import {bySlug} from "@/data/products";export const metadata:Metadata={title:"Contact us"};
 const faqs=[
   {q:"1. What type of fabric do you use for your apparel?",a:<>We use <strong>premium-quality fabrics</strong> selected for comfort, durability, and long-lasting wear. Our materials are soft, breathable, and suitable for everyday use while maintaining a stylish look.</>},
   {q:"2. Will the print fade after washing?",a:<>No. We use <strong>high-quality printing techniques</strong> designed to stay vibrant even after multiple washes. For best results, we recommend washing garments inside out with cold water.</>},
@@ -7,12 +7,12 @@ const faqs=[
   {q:"Where can I ship my order?",a:<>Shipping availability and delivery estimates depend on the destination and the product selected. Please contact us with your location and order details so we can confirm the available options before you order.</>},
   {q:"5. Can I customize my own design on your products?",a:<>Yes! At <strong>Print Custom</strong>, you can personalize t-shirts, hoodies, and hats with your own text, designs, or artwork. Our customization process is simple, allowing you to create fashion that truly reflects your style.</>}
 ];
-export default function Contact(){return <section className="shell content">
+export default async function Contact({searchParams}:{searchParams:Promise<{topic?:string;product?:string}>}){const params=await searchParams;const product=params.product?bySlug(params.product):undefined;const initialMessage=params.topic==="custom"?`I would like to ask about a custom order${product?` for ${product.name}`:""}. Please let me know about design options, sizing, pricing, and next steps.`:"";return <section className="shell content">
   <h1>Contact Us</h1>
   <p className="eyebrow">INFORMATION QUESTIONS</p>
   <h2 className="faq-title">FREQUENTLY ASKED QUESTIONS</h2>
   <div className="faq">{faqs.map((f,i)=><details key={f.q} open={i===0}><summary>{f.q}</summary><p className="muted">{f.a}</p></details>)}</div>
   <p className="eyebrow">INFORMATION ABOUT US</p>
   <h2 className="faq-title">CONTACT US FOR ANY QUESTIONS</h2>
-  <ContactForm/>
+  <ContactForm initialMessage={initialMessage}/>
 </section>}

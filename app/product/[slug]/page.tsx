@@ -24,7 +24,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <section className="shell">
       <p className="muted" style={{ paddingTop: 20 }}><Link href="/">Home</Link> / <Link href="/shop">Shop</Link> / {p.name}</p>
-      <ProductDetails images={p.gallery} alt={p.name} category={p.category} sku={p.sku} description={p.description} attributes={p.attributes} variations={p.variations} basePrice={p.price} range={p.range} />
+      <ProductDetails images={p.gallery} alt={p.name} category={p.category} sku={p.sku} description={p.description} attributes={p.attributes} variations={p.variations} basePrice={p.price} range={p.range} slug={p.slug} />
       {related.length > 0 && <section className="section"><div className="heading"><h2>You may also like</h2></div><Catalog items={related} /></section>}
     </section>
   );

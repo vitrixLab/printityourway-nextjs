@@ -73,3 +73,6 @@
 }
 
 .skip-link{position:fixed;z-index:1000;top:8px;left:8px;padding:12px 16px;background:#fff;color:#000;border:2px solid currentColor;transform:translateY(-160%)}.skip-link:focus{transform:translateY(0)}
+
+/* Accessible, user-controlled hero carousel */
+.hero-slide[hidden]{display:none!important}.hero-slide{animation:none;opacity:1;visibility:visible}.hero-slide h1,.hero-slide h2{font-size:clamp(36px,5vw,56px);line-height:1.08;letter-spacing:-.035em;margin:16px 0}.hero-controls{display:flex;align-items:center;justify-content:flex-end;gap:10px;grid-column:1/-1;margin-top:12px}.hero-controls button{min-width:44px;min-height:44px;padding:8px 12px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;cursor:pointer}.hero-controls span{font-size:12px}.detail-action{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.detail-action .button{margin:0}.detail-action-note{font-size:12px;color:var(--muted);margin:0}.product-description{margin-top:30px}

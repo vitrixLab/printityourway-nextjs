@@ -1,4 +1,59 @@
-import type {Metadata} from "next";import {notFound} from "next/navigation";import {bySlug,money,products} from "@/data/products";import {Catalog} from "@/components/Catalog";
-export function generateStaticParams(){return products.map(p=>({slug:p.slug}))}
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;const p=bySlug(slug);return {title:p?.name??"Product",description:p?.description}}
-export default async function ProductPage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const p=bySlug(slug);if(!p)notFound();const related=products.filter(x=>x.category===p.category&&x.slug!==p.slug).slice(0,4);return <section className="shell"><p className="muted" style={{paddingTop:20}}><a href="/">Home</a> / <a href="/shop">Shop</a> / {p.name}</p><div className="detail"><div className="detail-photo"><img src={p.image} alt={p.name}/></div><div><span className="eyebrow">{p.category.replace("-"," ")}</span><h1>{p.name}</h1><div className="detail-price">{p.range?`${money(p.range[0])} – ${money(p.range[1])}`:money(p.price)}</div><p>{p.description}</p>{p.options&&<div className="options">{Object.entries(p.options).map(([key,values])=><label key={key}>{key}<select defaultValue=""><option value="" disabled>Select {key.toLowerCase()}</option>{values.map(v=><option key={v}>{v}</option>)}</select></label>)}</div>}{!p.variationDataComplete&&<div className="notice"><b>Variation data incomplete.</b> The source mirror is missing this product’s purchasable variation matrix. Prices and stock by option are unknown and have not been inferred.</div>}<button className="button" disabled style={{opacity:.5,cursor:"not-allowed"}}>Purchasing unavailable in catalog preview</button><p className="muted">No cart, stock reservation, payment, or order submission is connected yet.</p></div></div>{related.length>0&&<section className="section"><div className="heading"><h2>You may also like</h2></div><Catalog items={related}/></section>}</section>}
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { bySlug, products } from "@/data/products";
+import { Catalog } from "@/components/Catalog";
+import { ProductDetails } from "@/components/ProductDetails";
+
+const siteUrl = "https://printityourway.com";
+
+export function generateStaticParams() {
+  return products.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const p = bySlug(slug);
+  if (!p) return { title: "Product not found" };
+  return {
+    title: p.name,
+    description: p.description[0]?.slice(0, 160),
+    alternates: { canonical: `/product/${p.slug}` },
+    openGraph: {
+      type: "website",
+      title: p.name,
+      description: p.description[0]?.slice(0, 160),
+      url: `${siteUrl}/product/${p.slug}`,
+      images: p.image ? [{ url: p.image, alt: p.name }] : [],
+    },
+  };
+}
+
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const p = bySlug(slug);
+  if (!p) notFound();
+  const related = products.filter((x) => x.category === p.category && x.slug !== p.slug).slice(0, 4);
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name,
+    description: p.description.join(" ").slice(0, 1000),
+    image: p.gallery,
+    category: p.category,
+    url: `${siteUrl}/product/${p.slug}`,
+    brand: { "@type": "Brand", name: "Print Custom" },
+  };
+
+  return (
+    <section className="shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
+      />
+      <p className="muted" style={{ paddingTop: 20 }}><Link href="/">Home</Link> / <Link href="/shop">Shop</Link> / {p.name}</p>
+      <ProductDetails images={p.gallery} alt={p.name} category={p.category} sku={p.sku} description={p.description} attributes={p.attributes} variations={p.variations} basePrice={p.price} range={p.range} slug={p.slug} />
+      {related.length > 0 && <section className="section"><div className="heading"><h2>You may also like</h2></div><Catalog items={related} /></section>}
+    </section>
+  );
+}

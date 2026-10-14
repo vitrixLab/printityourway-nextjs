@@ -1,20 +1,52 @@
-export type Product={slug:string;name:string;category:"bag"|"front-hat"|"hoodie"|"shirt";price:number;range?:[number,number];image:string;description:string;options?:Record<string,string[]>;variationDataComplete:boolean};
-const img=(file:string)=>`https://printityourway.com/wp-content/uploads/2026/01/${file}`;
-export const products:Product[]=[
-{slug:"camo-trucker-hat-classic-embroidered-camouflage-mesh-cap",name:"Camo Trucker Hat — Classic Embroidered Camouflage Mesh Cap",category:"front-hat",price:32,image:img("6836121809713607277_2048.jpeg"),description:"A classic camouflage mesh-back trucker hat for everyday wear.",variationDataComplete:true,options:{"Hat size":["One size"]}},
-{slug:"classic-sponge-fleece-hoodie-cozy-pullover-sweatshirt",name:"Classic Sponge Fleece Hoodie — Cozy Pullover Sweatshirt",category:"hoodie",price:75.48,range:[75.48,86.35],image:img("404645428725380419_2048.jpeg"),description:"A soft sponge-fleece pullover hoodie with a relaxed feel.",variationDataComplete:true,options:{Size:["XS","S","M","L","XL","2XL"],Color:["Black","White","Heather Gray","Navy"]}},
-{slug:"classic-white-backpack-minimalist-everyday-school-travel-bag",name:"Classic White Backpack — Minimalist Everyday School & Travel Bag",category:"bag",price:72.17,image:img("13513635740373758149_2048.jpeg"),description:"A clean, minimalist backpack for daily carry, school, and travel.",variationDataComplete:true},
-{slug:"cozy-three-panel-fleece-hoodie-lightweight-white-pullover",name:"Cozy Three-Panel Fleece Hoodie — Lightweight White Pullover",category:"hoodie",price:42.57,range:[42.57,86.35],image:img("14793268609273387525_2048.jpeg"),description:"A lightweight three-panel fleece hoodie. The archived mirror does not contain its complete purchasable variation matrix.",variationDataComplete:false,options:{Size:["XS","S","M","L","XL","2XL","3XL"],Color:["White"]}},
-{slug:"duffel-bag",name:"Duffel Bag",category:"bag",price:77.13,image:img("14209283355461699447_2048.jpeg"),description:"A versatile duffel for gym sessions, weekends, and travel.",variationDataComplete:true},
-{slug:"heather-gray-full-zip-hoodie-classic-casual-zip-up-hooded-jacket",name:"Heather Gray Full-Zip Hoodie — Classic Casual Zip-Up Hooded Jacket",category:"hoodie",price:47.95,range:[47.95,58.37],image:img("1989932592747291233_2048-1.jpeg"),description:"A classic full-zip hoodie in heather gray.",variationDataComplete:true,options:{Size:["S","M","L","XL","2XL"],Color:["Heather Gray"]}},
-{slug:"i-love-you-with-all-my-butt-t-shirt-funny-romantic-graphic-tee",name:"I Love You With All My Butt T‑Shirt — Funny Romantic Graphic Tee",category:"shirt",price:20.68,range:[20.68,29.43],image:img("16703897536180539761_2048.jpeg"),description:"A playful graphic tee for gifting and everyday wear.",variationDataComplete:true,options:{Size:["S","M","L","XL","2XL"],Color:["White","Black"]}},
-{slug:"laptop-sleeve",name:"Laptop Sleeve",category:"bag",price:29.52,image:img("5945569086361757255_2048.jpeg"),description:"A streamlined sleeve to help protect your laptop on the go.",variationDataComplete:true},
-{slug:"leather-patch-dad-hat-classic-rectangle-patch-baseball-cap",name:"Leather Patch Dad Hat — Classic Rectangle Patch Baseball Cap",category:"front-hat",price:22.47,image:img("1681051287873950391_2048.jpeg"),description:"A relaxed dad hat finished with a rectangular patch.",variationDataComplete:true},
-{slug:"low-profile-baseball-cap-classic-minimalist-white-dad-hat-for-everyday-wear",name:"Low Profile Baseball Cap — Classic Minimalist White Dad Hat for Everyday Wear",category:"front-hat",price:23.65,image:img("15732294987223453048_2048.jpeg"),description:"A low-profile baseball cap with a clean, minimalist silhouette.",variationDataComplete:true},
-{slug:"personalized-weekend-tote-bag-large-canvas-weekender-with-rope-handles",name:"Personalized Weekend Tote Bag — Large Canvas Weekender with Rope Handles",category:"bag",price:51.68,image:img("1490568131680964359_2048.jpeg"),description:"A roomy weekend tote with rope handles for short trips and daily errands.",variationDataComplete:true},
-{slug:"sweet-dreams-t-shirt-retro-cozy-sleepwear-graphic-tee",name:"Sweet Dreams T-Shirt — Retro Cozy Sleepwear Graphic Tee",category:"shirt",price:20.68,range:[20.68,29.43],image:img("5539868414333953173_2048.jpeg"),description:"A retro-inspired graphic tee for laid-back days and cozy nights.",variationDataComplete:true,options:{Size:["S","M","L","XL","2XL"],Color:["White","Black"]}},
-{slug:"white-crewneck-t-shirt",name:"White Crewneck T-Shirt",category:"shirt",price:19.18,range:[19.18,23.75],image:img("3566317684954824995_2048.jpeg"),description:"A versatile white crewneck tee with a timeless fit.",variationDataComplete:true,options:{Size:["S","M","L","XL","2XL"],Color:["White"]}}
-];
-export const categories=[{slug:"bag",name:"Bags"},{slug:"front-hat",name:"Hats"},{slug:"hoodie",name:"Hoodies"},{slug:"shirt",name:"T-Shirts"}] as const;
-export const money=(n:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(n);
-export const bySlug=(slug:string)=>products.find(p=>p.slug===slug);
+// Generated from the WordPress HTML mirror by scripts/generate-products.mjs.
+// Source: product/<slug>/index.html (attribute selects, data-product_variations, gallery, description tab).
+// Do not hand-edit product records; re-run the generator after refreshing scripts/mirror-products.json.
+
+import raw from "./products.json";
+
+export type CategorySlug = "bag" | "front-hat" | "hoodie" | "shirt";
+
+export type ProductAttribute = { key: string; label: string; values: string[] };
+
+export type ProductVariation = {
+  attributes: Record<string, string>;
+  price: number;
+  regularPrice: number;
+  inStock: boolean;
+  image?: string;
+};
+
+export type Product = {
+  slug: string;
+  name: string;
+  category: CategorySlug;
+  /** Lowest displayed price in USD (from the source price block / variation matrix). */
+  price: number;
+  /** Present when the source shows two distinct price points. */
+  range?: [number, number];
+  /** Primary image; always equal to gallery[0]. */
+  image: string;
+  /** Full gallery in source order (hotlinked to the original WordPress media library). */
+  gallery: string[];
+  /** Real description-tab copy, one entry per source block. */
+  description: string[];
+  /** Source variation attributes, in source order. */
+  attributes: ProductAttribute[];
+  /** Per-combination data from data-product_variations. Absent when the source matrix is false. */
+  variations?: ProductVariation[];
+  /** Product-level SKU as rendered (the mirror renders "N/A" for every product). */
+  sku?: string;
+};
+
+export const products = raw as unknown as Product[];
+
+export const categories = [
+  { slug: "bag", name: "Bags", sourceLabel: "Bag" },
+  { slug: "front-hat", name: "Hats", sourceLabel: "Front Hat" },
+  { slug: "hoodie", name: "Hoodies", sourceLabel: "Hoodie" },
+  { slug: "shirt", name: "T-Shirts", sourceLabel: "Shirt" },
+] as const;
+
+export const money = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+
+export const bySlug = (slug: string) => products.find((p) => p.slug === slug);

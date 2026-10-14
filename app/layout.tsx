@@ -8,13 +8,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "Print Custom", template: "%s | Print Custom" },
   description: "Custom T-shirts, hoodies, hats, and bags — Print it Your Way.",
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     siteName: "Print Custom",
     title: "Print Custom",
     description: "Custom T-shirts, hoodies, hats, and bags — Print it Your Way.",
-    url: siteUrl,
   },
 };
 

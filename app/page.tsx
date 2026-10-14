@@ -6,18 +6,18 @@ const slides=[
   {title:["Stay Cozy","Essential Hoodie"],copy:"Versatile hoodie collection perfect for layering and elevating your casual look.",href:"/product-category/hoodie",img:`${base}/2021/10/hoodies.png`}
 ];
 const steps=[
-  {icon:"grocery-1.svg",title:"Choose Product",copy:"It's content strategy gone awry right from the start are wasn't."},
-  {icon:"grocery-2.svg",title:"Upload Design",copy:"Forswearing the use of Lorem Ipsum wouldn't have helped."},
-  {icon:"grocery-3.svg",title:"Get Customized",copy:"It's like saying you're a bad designer, use less bold text, italics."}
+  {icon:"grocery-1.svg",title:"Choose Product",copy:"Browse our collection and choose the apparel or accessory that fits your style."},
+  {icon:"grocery-2.svg",title:"Upload Design",copy:"Bring your idea, artwork, or logo and make your selected product your own."},
+  {icon:"grocery-3.svg",title:"Get Customized",copy:"Explore product options and create a look that feels uniquely yours."}
 ];
 const shirts=products.filter(p=>p.category==="shirt");
 const hats=products.filter(p=>p.category==="front-hat");
-const printifyCopy=`Discover your perfect style with our premium collection of shirts, hats, and hoodies, thoughtfully created for those who value both fashion and comfort. Designed to stand out without sacrificing ease, every piece blends modern trends with everyday wearability, making it perfect for any lifestyle. From casual outings to statement looks, our apparel adapts effortlessly to your day. Crafted using high-quality fabrics and long-lasting prints, each item delivers durability, softness, and a refined finish. Whether you're dressing up or keeping it laid-back, our designs help you express your unique identity with confidence, authenticity, and style season after season.`;
+const printifyCopy=`Choose from our collection of T-shirts, hats, hoodies, and bags, then bring your own image, photo, company logo, or message to the design. Whether you are creating a personal statement, team apparel, or branded merchandise, Print It Your Way helps turn your idea into something you can wear and share.`;
 export default function Home(){return <>
   <section className="hero-slider"><div className="shell hero-slides">{slides.map((s,i)=><div className="hero-slide" key={s.title.join(" ")} style={{animationDelay:`${i*5}s`}}><div><h1>{s.title[0]}<br/>{s.title[1]}</h1><p>{s.copy}</p><Link className="button" href={s.href}>Shop Now</Link></div><div className="hero-art"><img src={s.img} alt="" width={340} height={340}/></div></div>)}</div></section>
   <section className="section shell steps">{steps.map(s=><div className="step" key={s.title}><img src={`${base}/2021/10/${s.icon}`} alt="" width={60} height={60} loading="lazy"/><h4>{s.title}</h4><p className="muted">{s.copy}</p></div>)}</section>
   <section className="section shell"><div className="heading"><h2>T SHIRTS</h2></div><Catalog items={shirts}/></section>
-  <section className="section soft"><div className="shell printify"><h2>Find Your Perfect Design<br/> with Printify</h2><p className="muted">{printifyCopy}</p></div></section>
+  <section className="section soft"><div className="shell printify"><h2>Make It Yours<br/> Your Way</h2><p className="muted">{printifyCopy}</p></div></section>
   <section className="section shell"><div className="heading"><h2>HATS</h2></div><Catalog items={hats}/></section>
   <section className="section soft"><div className="shell">
     <div className="banners">

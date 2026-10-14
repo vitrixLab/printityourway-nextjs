@@ -10,5 +10,5 @@ export default function About(){return <section className="shell content">
   <h1>About Us</h1>
   <img className="about-img" src="https://printityourway.com/wp-content/uploads/2026/01/Fashion-store.png" alt="" width={480} height={480}/>
   {paras.map(p=><p key={p.slice(0,40)}>{p}</p>)}
-  <p className="muted">Catalog preview: checkout, accounts, and live inventory are not connected. <Link href="/shop">Shop the collection</Link>.</p>
+  <p className="muted">Interested in an item or custom design? Contact us to confirm availability, options, and pricing. <Link href="/shop">Shop the collection</Link>.</p>
 </section>}

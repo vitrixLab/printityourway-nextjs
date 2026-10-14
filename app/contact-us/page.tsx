@@ -1,4 +1,4 @@
-import type {Metadata} from "next";import {ContactForm} from "@/components/ContactForm";import {bySlug} from "@/data/products";export const metadata:Metadata={title:"Contact us"};
+import type {Metadata} from "next";import {ContactForm} from "@/components/ContactForm";import {bySlug} from "@/data/products";export const metadata:Metadata={title:"Contact us",alternates:{canonical:"/contact-us"}};
 const faqs=[
   {q:"1. What type of fabric do you use for your apparel?",a:<>We use <strong>premium-quality fabrics</strong> selected for comfort, durability, and long-lasting wear. Our materials are soft, breathable, and suitable for everyday use while maintaining a stylish look.</>},
   {q:"2. Will the print fade after washing?",a:<>No. We use <strong>high-quality printing techniques</strong> designed to stay vibrant even after multiple washes. For best results, we recommend washing garments inside out with cold water.</>},

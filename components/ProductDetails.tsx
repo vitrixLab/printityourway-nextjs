@@ -29,7 +29,7 @@ export function ProductDetails({ images, alt, category, sku, description, attrib
         <h1>{alt}</h1>
         {sku && <p className="muted" style={{ margin: "4px 0", fontSize: 12 }}>SKU: {sku}</p>}
         <VariationPicker attributes={attributes} variations={variations} basePrice={basePrice} range={range} onVariationImage={setSelectedImage} />
-        {!variations && <div className="notice"><b>Variation data unavailable.</b> The source mirror does not contain this product’s purchasable variation matrix. Prices and stock by option are unknown and have not been inferred.</div>}
+        {!variations && <div className="notice">Some options may need confirmation. Contact us to check available sizes, colors, and current pricing before ordering.</div>}
         <div className="detail-action">
           <Link className="button" href={`/contact-us?topic=custom&product=${encodeURIComponent(slug)}`}>Request a custom order</Link>
           <p className="detail-action-note">Ask us about sizing, pricing, or your design. For direct contact, email <a href="mailto:Contact@printityourway.com">Contact@printityourway.com</a>.</p>

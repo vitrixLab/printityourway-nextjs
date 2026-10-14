@@ -1,4 +1,4 @@
-import type {Metadata} from "next";import Link from "next/link";export const metadata:Metadata={title:"About us"};
+import type {Metadata} from "next";import Link from "next/link";export const metadata:Metadata={title:"About us",alternates:{canonical:"/about-us"}};
 const paras=[
   `Welcome to Print It Your Way, where creativity meets fashion and self-expression has no limits. We believe clothing is more than just fabric-it's a powerful way to tell your story, show your personality, and stand out from the crowd. With our tagline "Customize Your Design," we empower you to turn your ideas into wearable style.`,
   `At Print It Your Way, we specialize in custom T-shirts, hoodies, hats, and men's fashion essentials designed to fit your lifestyle. Whether you want a bold statement piece, a minimalist look, or a fully personalized design, we give you the freedom to create fashion exactly the way you imagine it.`,

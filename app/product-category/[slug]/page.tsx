@@ -6,6 +6,6 @@ export default async function Category({params,searchParams}:{params:Promise<{sl
     <p className="muted breadcrumb"><Link href="/">Home</Link> / {category.sourceLabel}</p>
     <div className="pagehead"><h1>{category.sourceLabel}</h1></div>
     <form className="controls" action={`/product-category/${category.slug}`}><label>Shop order<select name="orderby" defaultValue={orderby??""}><option value="">Default sorting</option><option value="price">Sort by price: low to high</option><option value="price-desc">Sort by price: high to low</option></select></label><button className="button">Apply</button></form>
-    <p className="muted" role="alert">Showing all {list.length} results</p>
+    <p className="muted">Showing all {list.length} results</p>
     <Catalog items={list}/>
   </section>}

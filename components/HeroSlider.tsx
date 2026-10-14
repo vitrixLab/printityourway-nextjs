@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-
-const subscribeToMotionPreference = (callback: () => void) => {
-  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-};
-const getMotionPreference = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const getServerMotionPreference = () => true;
 
 const slides = [
   { title: ["Trendsetting", "T-Shirts Drop"], copy: "Discover bold new T-shirt styles created to elevate every casual outfit.", href: "/product-category/shirt", image: "https://printityourway.com/wp-content/uploads/2021/10/t-shirts-1.png", alt: "T-shirt collection" },
@@ -20,6 +12,8 @@ const slides = [
 export function HeroSlider() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
 
   useEffect(() => {
@@ -31,7 +25,7 @@ export function HeroSlider() {
   }, []);
 
   useEffect(() => {
-    if (paused || reducedMotion) return;
+    if (paused || hovered || focused || reducedMotion) return;
     const timer = window.setInterval(() => setActive((index) => (index + 1) % slides.length), 5000);
     return () => window.clearInterval(timer);
   }, [paused, hovered, focused, reducedMotion]);

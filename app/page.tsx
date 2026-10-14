@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { products, categories } from "@/data/products";
 import { HeroSlider } from "@/components/HeroSlider";
 import { OfferTabs } from "@/components/OfferTabs";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const base = "https://printityourway.com/wp-content/uploads";
 const steps = [
@@ -27,7 +30,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
       <section className="section shell">
         <div className="heading">
           <div><span className="eyebrow">Fresh picks</span><h2>New Offers</h2></div>
@@ -35,7 +37,6 @@ export default function Home() {
         </div>
         <OfferTabs />
       </section>
-
       <section className="section brand-promo">
         <div className="shell promo-layout">
           <div className="promo-copy">
@@ -49,7 +50,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <section className="section shell">
         <div className="heading">
           <div><span className="eyebrow">Find your fit</span><h2>Shop by Category</h2></div>
@@ -58,12 +58,8 @@ export default function Home() {
           {categories.map((category) => {
             const product = products.find((item) => item.category === category.slug);
             return (
-              <Link
-                className="tile"
-                href={`/product-category/${category.slug}`}
-                key={category.slug}
-                style={product ? { backgroundImage: `linear-gradient(180deg, rgba(15, 20, 30, .04), rgba(15, 20, 30, .76)), url("${product.image}")` } : undefined}
-              >
+              <Link className="tile" href={`/product-category/${category.slug}`} key={category.slug}
+                style={product ? { backgroundImage: `linear-gradient(180deg, rgba(15, 20, 30, .04), rgba(15, 20, 30, .76)), url("${product.image}")` } : undefined}>
                 <span>{products.filter((item) => item.category === category.slug).length} products</span>
                 <b>{category.name}</b>
                 <span className="tile-arrow" aria-hidden="true">↗</span>
@@ -72,7 +68,6 @@ export default function Home() {
           })}
         </div>
       </section>
-
     </>
   );
 }

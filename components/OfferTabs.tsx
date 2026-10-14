@@ -21,23 +21,18 @@ export function OfferTabs() {
 
   return (
     <div className="offer-tabs">
-      <div className="offer-tablist" role="tablist" aria-label="Browse new offers">
+      <div className="offer-tablist" role="group" aria-label="Filter new offers">
         {tabs.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            role="tab"
-            id={`offer-tab-${tab.value}`}
-            aria-selected={active === tab.value}
-            aria-controls="offer-panel"
-            className="offer-tab"
-            onClick={() => setActive(tab.value)}
-          >
+          <button key={tab.value} type="button" aria-pressed={active === tab.value}
+            className="offer-tab" onClick={() => setActive(tab.value)}>
             {tab.label}
           </button>
         ))}
       </div>
-      <div id="offer-panel" role="tabpanel" aria-labelledby={`offer-tab-${active}`}>
+      <p className="sr-only" role="status" aria-live="polite">
+        Showing {Math.min(items.length, 8)} of {items.length} products
+      </p>
+      <div id="offer-panel">
         <Catalog items={items.slice(0, 8)} />
         {items.length > 8 && (
           <div className="offer-more">

@@ -154,3 +154,10 @@ a:hover{color:var(--brand-purple)}
 @media(prefers-reduced-motion:reduce){
   .button,.tile,.photo img{transition:none}
 }
+
+
+/* PR1: keyboard-operable mobile menu button */
+.mobile-menu>button{appearance:none;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:8px 0;min-height:44px}
+.mobile-menu>nav{display:flex;flex-direction:column;gap:8px;padding:10px 0;font-size:13px;font-weight:600}
+.mobile-menu>nav a{padding:6px 0}
+@media(min-width:901px){.mobile-menu{display:none}}

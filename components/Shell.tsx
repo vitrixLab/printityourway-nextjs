@@ -1,6 +1,7 @@
 import Link from "next/link";
-import {categories} from "@/data/products";
-import {IconFacebook,IconTwitter,IconInstagram,IconYoutube,IconPinterest,IconTiktok} from "@/components/SocialIcons";
+import { categories } from "@/data/products";
+import { MobileMenu } from "@/components/MobileMenu";
+import { IconFacebook,IconTwitter,IconInstagram,IconYoutube,IconPinterest,IconTiktok } from "@/components/SocialIcons";
 const logo="https://printityourway.com/wp-content/uploads/2025/11/Print-it-scaled.png";
 const footerLogo="https://printityourway.com/wp-content/uploads/2025/10/Print-it-934x800.jpg";
 const envelope="https://printityourway.com/wp-content/uploads/2021/10/grocery-envelope.svg";
@@ -20,7 +21,7 @@ export function Header(){return <header>
       <select name="product_cat" aria-label="Select category"><option value="">Select category</option>{categories.map(c=><option key={c.slug} value={c.slug}>{c.sourceLabel}</option>)}</select>
       <button type="submit">Search</button>
     </form>
-    <details className="mobile-menu"><summary>Menu</summary><nav><Link href="/">Home</Link><Link href="/about-us">About us</Link><Link href="/shop">Shop</Link><Link href="/contact-us">Contact us</Link></nav></details>
+    <MobileMenu />
     <div className="tools"><Link href="/wishlist">Wishlist</Link><Link href="/compare">Compare <span className="count">0</span></Link><Link href="/cart">Cart <span className="count">0 items</span> $0.00</Link></div>
   </div>
   <div className="mainnav"><div className="shell mainnav-inner">

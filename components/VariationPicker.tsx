@@ -26,11 +26,11 @@ export function VariationPicker({ attributes, variations, basePrice, range, onVa
   const base = range ? `${money(range[0])} – ${money(range[1])}` : money(basePrice);
   let priceBlock: ReactNode;
   if (!variations) {
-    priceBlock = <div className="detail-price">{base}<p className="stock-note">Prices and stock by option are not present in the source data for this product.</p></div>;
+    priceBlock = <div className="detail-price">{base}<p className="stock-note">Please contact us to confirm options, current pricing, and availability for this item.</p></div>;
   } else if (match) {
     priceBlock = <div className="detail-price">{money(match.price)}{match.regularPrice !== match.price && <s> {money(match.regularPrice)}</s>}<p className={match.inStock ? "stock-note" : "stock-note out"}>{match.inStock ? "In stock" : "Out of stock"}</p></div>;
   } else if (complete) {
-    priceBlock = <div className="detail-price">{base}<p className="stock-note">This combination is not present in the source variation matrix.</p></div>;
+    priceBlock = <div className="detail-price">{base}<p className="stock-note">Please contact us to confirm pricing and availability for this combination.</p></div>;
   } else {
     priceBlock = <div className="detail-price">{base}<p className="stock-note muted">Select all options to see the exact price.</p></div>;
   }

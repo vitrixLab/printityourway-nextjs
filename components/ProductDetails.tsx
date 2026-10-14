@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { ProductAttribute, ProductVariation } from "@/data/products";
 import { ProductGallery } from "@/components/ProductGallery";
 import { VariationPicker } from "@/components/VariationPicker";
@@ -15,9 +16,10 @@ type Props = {
   variations?: ProductVariation[];
   basePrice: number;
   range?: [number, number];
+  slug: string;
 };
 
-export function ProductDetails({ images, alt, category, sku, description, attributes, variations, basePrice, range }: Props) {
+export function ProductDetails({ images, alt, category, sku, description, attributes, variations, basePrice, range, slug }: Props) {
   const [selectedImage, setSelectedImage] = useState<string | undefined>();
   return (
     <div className="detail">
@@ -27,10 +29,12 @@ export function ProductDetails({ images, alt, category, sku, description, attrib
         <h1>{alt}</h1>
         {sku && <p className="muted" style={{ margin: "4px 0", fontSize: 12 }}>SKU: {sku}</p>}
         <VariationPicker attributes={attributes} variations={variations} basePrice={basePrice} range={range} onVariationImage={setSelectedImage} />
-        {!variations && <div className="notice"><b>Variation data unavailable.</b> The source mirror does not contain this product’s purchasable variation matrix. Prices and stock by option are unknown and have not been inferred.</div>}
-        <div className="product-description">{description.map((para, i) => <p key={i}>{para}</p>)}</div>
-        <button className="button" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>Purchasing unavailable in catalog preview</button>
-        <p className="muted">No cart, stock reservation, payment, or order submission is connected yet.</p>
+        {!variations && <div className="notice">Some options may need confirmation. Contact us to check available sizes, colors, and current pricing before ordering.</div>}
+        <div className="detail-action">
+          <Link className="button" href={`/contact-us?topic=custom&product=${encodeURIComponent(slug)}`}>Request a custom order</Link>
+          <p className="detail-action-note">Ask us about sizing, pricing, or your design. For direct contact, email <a href="mailto:Contact@printityourway.com">Contact@printityourway.com</a>.</p>
+        </div>
+        <div className="product-description"><h2>Description</h2>{description.map((para, i) => <p key={i}>{para}</p>)}</div>
       </div>
     </div>
   );

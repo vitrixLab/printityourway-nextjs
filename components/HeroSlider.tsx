@@ -3,7 +3,15 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 
-const subscribeToMotionPreference = (callback: () => void) => {\n  const media = window.matchMedia("(prefers-reduced-motion: reduce)");\n  media.addEventListener("change", callback);\n  return () => media.removeEventListener("change", callback);\n};\nconst getMotionPreference = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;\nconst getServerMotionPreference = () => true;\n\nconst slides = [
+const subscribeToMotionPreference = (callback: () => void) => {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+};
+const getMotionPreference = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const getServerMotionPreference = () => true;
+
+const slides = [
   { title: ["Trendsetting", "T-Shirts Drop"], copy: "Discover bold new T-shirt styles created to elevate every casual outfit.", href: "/product-category/shirt", image: "https://printityourway.com/wp-content/uploads/2021/10/t-shirts-1.png", alt: "T-shirt collection" },
   { title: ["Shade in", "Your Perfect Hat"], copy: "Discover versatile hat collections designed to match every mood and occasion.", href: "/product-category/front-hat", image: "https://printityourway.com/wp-content/uploads/2021/10/hats.png", alt: "Hat collection" },
   { title: ["Stay Cozy", "Essential Hoodie"], copy: "Versatile hoodie collection perfect for layering and elevating your casual look.", href: "/product-category/hoodie", image: "https://printityourway.com/wp-content/uploads/2021/10/hoodies.png", alt: "Hoodie collection" },

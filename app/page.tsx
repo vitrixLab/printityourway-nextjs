@@ -1,4 +1,5 @@
 import Link from "next/link";import {products,categories} from "@/data/products";import {Catalog} from "@/components/Catalog";import {HeroSlider} from "@/components/HeroSlider";
+const base="https://printityourway.com/wp-content/uploads";
 const steps=[
   {icon:"grocery-1.svg",title:"Choose Product",copy:"Browse our collection and choose the apparel or accessory that fits your style."},
   {icon:"grocery-2.svg",title:"Upload Design",copy:"Bring your idea, artwork, or logo and make your selected product your own."},
@@ -16,7 +17,7 @@ export default function Home(){return <>
   <section className="section soft"><div className="shell">
     <div className="banners">
       <div className="banner" style={{backgroundImage:`url(${base}/2026/01/2CBAA3.png)`}}><small>NEW PRODUCTS</small><h3>New T-Shirts</h3><p>Modern designs crafted for everyday comfort and effortless style all day.</p><Link className="button" href="/product-category/shirt">Shop Now</Link></div>
-      <div className="banner" style={{backgroundImage:`url(${base}/2025/11/Bg-2.jpg)`}}><small>Hoodies</small><h3>Stay Cozy</h3><p>Soft, premium hoodies designed to keep you warm, comfortable, and stylish.</p><Link className="button" href="/product-category/hoodie">BUY NOW</Link></div>
+      <div className="banner" style={{backgroundImage:`url(${base}/2025/11/Bg-2.jpg)`}}><small>Hoodies</small><h3>Stay Cozy</h3><p>Soft, premium hoodies designed to keep you warm, comfortable, and stylish.</p><Link className="button" href="/product-category/hoodie">Shop Hoodies</Link></div>
     </div>
     <Catalog items={products}/>
   </div></section>
